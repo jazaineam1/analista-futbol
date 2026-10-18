@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "fecha": "2026-10-17",
+  "datos": {
+    "entrenamiento": "StatsBomb Open Data: Premier League 2015/16",
+    "prueba": "StatsBomb Open Data: Mundial 2022, Euro 2020, Euro 2024, Copa América 2024",
+    "tiros_entrenamiento": 9817,
+    "tiros_prueba": 4709
+  },
+  "penal": 0.78,
+  "modelos": {
+    "basico": {
+      "rasgos": [
+        "log_distancia",
+        "angulo",
+        "cabeza",
+        "tiro_libre"
+      ],
+      "intercepto": 2.0849956797979323,
+      "coeficientes": [
+        -1.7320307126957426,
+        0.4114722658424342,
+        -1.0567339531950581,
+        0.5854111049600546
+      ],
+      "prueba": {
+        "auc": 0.7482,
+        "log_loss": 0.2725,
+        "brier": 0.0762,
+        "xg_total": 450.0,
+        "goles": 435
+      }
+    },
+    "contexto": {
+      "rasgos": [
+        "log_distancia",
+        "angulo",
+        "cabeza",
+        "tiro_libre",
+        "balon_parado",
+        "bajo_presion",
+        "primer_toque",
+        "defensores_en_cono",
+        "log_dist_arquero"
+      ],
+      "intercepto": -0.18052146806074273,
+      "coeficientes": [
+        -1.3920413420925646,
+        1.0343718680043434,
+        -0.6083998825300719,
+        1.52398252300342,
+        -0.11375235796002461,
+        -0.21266807241847507,
+        0.03628508486342836,
+        -0.2625746559967736,
+        0.9019017343341379
+      ],
+      "prueba": {
+        "auc": 0.7775,
+        "log_loss": 0.2623,
+        "brier": 0.074,
+        "xg_total": 434.7,
+        "goles": 435
+      }
+    }
+  },
+  "referencia_statsbomb": {
+    "auc": 0.8042,
+    "log_loss": 0.2468,
+    "brier": 0.0692,
+    "xg_total": 435.3
+  }
+}

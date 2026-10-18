@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analista de fútbol</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23176b47'/%3E%3Crect x='6' y='9' width='20' height='14' rx='1.5' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M16 9v14' stroke='white' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+/* Panel de trabajo: barra superior con pestañas, una tarjeta por tarea, verde césped como acento */
+:root{--bg:#f4f5f2;--surface:#ffffff;--surface2:#f7f8f5;--ink:#141a15;--ink2:#4a544b;--muted:#7b857c;--line:#e0e4dd;
+--accent:#176b47;--accent-hover:#125a3b;--accent-ink:#fff;--accent-soft:#e3f0e8;--warn:#a1620b;--warn-soft:#fbf1df;
+--err:#b3261e;--err-soft:#fbe9e7;--a:#2a78d6;--b:#eb6834;--o:#b8960c;--pitch:#e7eee5;--pitchline:#a9b8a6;
+--radius:10px;--font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1311;--surface:#171c19;--surface2:#1c221e;--ink:#eaf0e9;
+--ink2:#b3bdb2;--muted:#7f897e;--line:#2a322c;--accent:#3fb87c;--accent-hover:#52c78c;--accent-ink:#06150d;--accent-soft:#183326;
+--warn:#e3a54a;--warn-soft:#2e2414;--err:#f08a80;--err-soft:#331a18;--a:#3987e5;--b:#d95926;--o:#e0bf3a;--pitch:#18211b;--pitchline:#3d4d40;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1311;--surface:#171c19;--surface2:#1c221e;--ink:#eaf0e9;--ink2:#b3bdb2;--muted:#7f897e;--line:#2a322c;
+--accent:#3fb87c;--accent-hover:#52c78c;--accent-ink:#06150d;--accent-soft:#183326;--warn:#e3a54a;--warn-soft:#2e2414;--err:#f08a80;
+--err-soft:#331a18;--a:#3987e5;--b:#d95926;--o:#e0bf3a;--pitch:#18211b;--pitchline:#3d4d40;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font)}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;
+padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.01em;white-space:nowrap}
+.marca svg{width:26px;height:26px}
+.pill{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--surface2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.pill.ok{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+nav.tabs{margin-left:auto;display:flex;gap:2px;overflow-x:auto;max-width:100%;scrollbar-width:none}
+nav.tabs button{background:none;border:0;padding:8px 12px;border-radius:8px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{background:var(--surface2)}
+nav.tabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav.tabs .sep{width:1px;background:var(--line);margin:6px 6px}
+main{max-width:1280px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 64px max(16px,env(safe-area-inset-left,0px))}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:16px;margin:0 0 10px}
+.lead{color:var(--ink2);margin:0 0 18px;max-width:80ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.fila{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.grid-cal{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.grid2,.grid-cal{grid-template-columns:1fr}}
+label.campo{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink2)}
+input[type=text],input[type=number],select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=text]:focus,input[type=number]:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input[type=color]{width:42px;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:2px}
+input[type=range]{accent-color:var(--accent);flex:1;min-width:120px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--surface2)}
+a.btn{text-decoration:none;color:var(--ink);display:inline-block}
+#reportes-lista .btn{white-space:normal;max-width:100%;text-align:left}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.pri:hover{background:var(--accent-hover)}
+.btn.chico{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:2px;background:var(--surface2)}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;color:var(--ink2)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.msg{padding:10px 12px;border-radius:8px;font-size:14px;margin-top:10px}
+.msg.ok{background:var(--accent-soft);color:var(--accent)}
+.msg.warn{background:var(--warn-soft);color:var(--warn)}
+.msg.err{background:var(--err-soft);color:var(--err)}
+.nota{font-size:13px;color:var(--muted)}
+.mono{font-family:var(--mono);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface2);border-radius:8px;padding:10px 12px}
+.kpi .et{font-size:12px;color:var(--muted)}
+.kpi .v{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kpi .v small{font-size:13px;color:var(--muted);font-weight:500}
+.vs{display:flex;align-items:baseline;gap:8px}
+.vs .a{color:var(--a)}.vs .b{color:var(--b)}
+.barra{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:6px}
+.barra i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.marco{position:relative;background:#000;border-radius:8px;overflow:hidden;line-height:0}
+.marco img,.marco video{width:100%;height:auto;display:block}
+.marco canvas{position:absolute;inset:0;width:100%;height:100%}
+.vacio{display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;background:var(--surface2);border-radius:8px;color:var(--muted);text-align:center;padding:16px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td.mono{white-space:nowrap}
+th{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tr:hover td{background:var(--surface2)}
+.tabla-scroll{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.puntos{list-style:none;margin:0;padding:0;display:grid;gap:4px;max-height:220px;overflow:auto}
+.puntos li{display:flex;gap:8px;align-items:center;font-size:13px;padding:5px 8px;background:var(--surface2);border-radius:6px}
+.puntos .n{width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.puntos .err{margin-left:auto;font-family:var(--mono);font-size:12px}
+svg.cancha{width:100%;height:auto;display:block;cursor:crosshair;background:var(--pitch);border-radius:8px}
+svg.cancha .l{fill:none;stroke:var(--pitchline);stroke-width:.35}
+svg.cancha .ref{fill:var(--surface);stroke:var(--ink2);stroke-width:.25}
+svg.cancha .ref:hover{fill:var(--accent)}
+svg.cancha .sel{fill:var(--accent);stroke:#fff;stroke-width:.3}
+svg.cancha text{font-size:2.4px;fill:#fff;text-anchor:middle;font-weight:700;pointer-events:none}
+.riel{display:flex;overflow-x:auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:14px 0}
+.riel button{flex:1 0 auto;min-width:86px;background:none;border:0;border-bottom:3px solid transparent;padding:8px 8px 7px;text-align:left;color:var(--muted);cursor:pointer;font-size:13px}
+.riel button b{display:block;font-size:18px;color:inherit}
+.riel button[aria-current="step"]{color:var(--ink);border-bottom-color:var(--accent)}
+.escena{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+@media (max-width:980px){.escena{grid-template-columns:1fr}}
+.visor{display:grid;gap:10px;min-width:0}
+.visor img{width:100%;height:auto;border-radius:8px;display:block;cursor:zoom-in}
+.visor .mapa{background:var(--surface2);border-radius:8px;padding:8px}
+.visor .mapa svg{width:100%;height:auto;display:block}
+.texto h2{font-size:20px;margin:2px 0 8px}
+.texto p{margin:0 0 10px;color:var(--ink2)}
+.texto p.que{color:var(--ink)}
+dl.datos{margin:10px 0 0;border-top:1px solid var(--line)}
+dl.datos div{padding:7px 0;border-bottom:1px solid var(--line)}
+dl.datos dt{font-size:12px;color:var(--muted)}dl.datos dd{margin:0;font-size:14px;font-family:var(--mono);overflow-wrap:anywhere}
+.pitch-bg{fill:var(--pitch)}.pitch-line{fill:none;stroke:var(--pitchline);stroke-width:1.2}
+.huella{fill:var(--ink);fill-opacity:.06;stroke:var(--ink2);stroke-dasharray:4 3;stroke-width:1}
+.d-A{fill:var(--a);stroke:var(--surface);stroke-width:1.5}.d-B{fill:var(--b);stroke:var(--surface);stroke-width:1.5}.d-O{fill:var(--o);stroke:var(--surface);stroke-width:1.5}
+.hueco-A{fill:none;stroke:var(--a);stroke-width:1.6}.hueco-B{fill:none;stroke:var(--b);stroke-width:1.6}.hueco-O{fill:none;stroke:var(--o);stroke-width:1.6}
+.tr-A{fill:none;stroke:var(--a);stroke-width:2;stroke-opacity:.55}.tr-B{fill:none;stroke:var(--b);stroke-width:2;stroke-opacity:.55}.tr-O{fill:none;stroke:var(--o);stroke-width:2;stroke-opacity:.55}
+.lbl{font:600 8px var(--font);fill:#fff;text-anchor:middle;pointer-events:none}
+.bal{fill:var(--ink);stroke:var(--surface);stroke-width:1.5}
+.bloque-A{fill:var(--a);fill-opacity:.13;stroke:var(--a);stroke-width:1.2}.bloque-B{fill:var(--b);fill-opacity:.13;stroke:var(--b);stroke-width:1.2}
+.linea-A{stroke:var(--a);stroke-width:1.6;stroke-dasharray:5 4}.linea-B{stroke:var(--b);stroke-width:1.6;stroke-dasharray:5 4}
+.presion{fill:var(--ink);fill-opacity:.06;stroke:var(--ink);stroke-width:1;stroke-dasharray:2 3}
+.poseedor{fill:none;stroke:var(--ink);stroke-width:2}
+iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.marcador{font-variant-numeric:tabular-nums;font-weight:650;white-space:nowrap}
+.chip{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--surface2);color:var(--ink2)}
+.chip.ok{background:var(--accent-soft);color:var(--accent)}
+#lupa{position:fixed;inset:0;background:rgba(0,0,0,.86);display:flex;align-items:flex-start;justify-content:center;overflow:auto;z-index:20;padding:16px;cursor:zoom-out}
+#lupa img{max-width:none;border-radius:4px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;margin-right:6px}
+@media (prefers-reduced-motion:no-preference){.spin{animation:gira .8s linear infinite}@keyframes gira{to{transform:rotate(360deg)}}}
+</style>
+</head>
+<body>
+<header>
+  <div class="marca"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><rect x="6" y="9" width="20" height="14" rx="1.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M16 9v14" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="none" stroke="#fff" stroke-width="2"/></svg>Analista de fútbol</div>
+  <span class="pill" id="estado-pill">sin fuente</span>
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button role="tab" data-tab="datos">Datos de partidos</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button role="tab" data-tab="fuente">1 · Fuente</button>
+    <button role="tab" data-tab="calibrar">2 · Calibrar</button>
+    <button role="tab" data-tab="analizar">3 · Analizar</button>
+    <button role="tab" data-tab="resultados">4 · Resultados</button>
+    <button role="tab" data-tab="detecta">Cómo detecta</button>
+  </nav>
+</header>
+<main>
+
+<!-- ============================================================ DATOS -->
+<section id="tab-datos" role="tabpanel" hidden>
+  <h1>Datos de partidos</h1>
+  <p class="lead">Analiza partidos completos con datos abiertos: eventos de StatsBomb (cada pase, tiro y presión, con xG) o tracking
+  de SkillCorner (la posición de los 22 jugadores y el balón 10 veces por segundo). Elige un partido y genera su reporte.</p>
+  <div class="card">
+    <div class="fila" style="justify-content:space-between">
+      <div class="seg" role="group" aria-label="Tipo de datos">
+        <button aria-pressed="true" data-fuente="statsbomb">Eventos · StatsBomb</button>
+        <button aria-pressed="false" data-fuente="skillcorner">Tracking · SkillCorner</button>
+      </div>
+      <div class="fila">
+        <label class="campo" id="comp-campo" style="min-width:260px">Competición
+          <select id="comp"><option>Cargando…</option></select></label>
+        <label class="campo">Buscar equipo<input type="text" id="buscar" placeholder="Argentina, Barcelona…"></label>
+      </div>
+    </div>
+    <p class="nota" id="datos-nota" style="margin:10px 0 0"></p>
+    <div class="tabla-scroll" style="margin-top:12px">
+      <table><thead><tr><th>Fecha</th><th>Local</th><th style="text-align:center">Resultado</th><th>Visitante</th><th>Fase</th><th></th></tr></thead>
+      <tbody id="partidos"><tr><td colspan="6" class="nota">Cargando…</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="card" id="datos-trabajo" hidden>
+    <div class="fila" style="justify-content:space-between">
+      <h2 id="dt-titulo" style="margin:0">Reporte</h2>
+      <div class="fila"><a class="btn chico" id="dt-abrir" target="_blank" rel="noopener" hidden>Abrir en pestaña nueva ↗</a></div>
+    </div>
+    <div id="dt-estado" class="msg" hidden></div>
+    <div class="kpis" id="dt-kpis" style="margin-top:12px"></div>
+    <iframe class="reporte" id="dt-iframe" title="Reporte del partido" hidden style="margin-top:14px"></iframe>
+  </div>
+  <div class="card">
+    <h2>Reportes generados</h2>
+    <div id="reportes-lista" class="nota">Todavía no hay reportes en este proyecto.</div>
+  </div>
+</section>
+
+<!-- ============================================================ FUENTE -->
+<section id="tab-fuente" role="tabpanel" hidden>
+  <h1>Fuente de video</h1>
+  <p class="lead">Un archivo de video del partido, una capturadora HDMI conectada a la salida de tu decodificador o consola,
+  una cámara, la pantalla del PC o una URL de red. La app solo lee lo que tu equipo puede reproducir: no evita protecciones de contenido.</p>
+  <div class="card">
+    <label class="campo">Archivo o dispositivo
+      <div class="fila"><input type="text" id="spec" placeholder="C:\videos\partido.mp4  ·  disp:0  ·  pantalla  ·  rtsp://…" style="flex:1;min-width:240px">
+      <button class="btn pri" id="abrir">Abrir</button></div></label>
+    <div class="fila" style="margin-top:10px">
+      <span class="nota">Atajos:</span>
+      <button class="btn chico" data-spec="disp:0">Capturadora / cámara 0</button>
+      <button class="btn chico" data-spec="disp:1">Dispositivo 1</button>
+      <button class="btn chico" data-spec="pantalla">Pantalla completa</button>
+    </div>
+    <div id="fuente-msg" class="msg" hidden></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h2>Vista previa</h2><div id="fuente-vista" class="vacio">Abre una fuente para ver el primer cuadro.</div></div>
+    <div class="card"><h2>Detalles</h2><dl class="datos" id="fuente-info"><div><dt>Fuente</dt><dd>–</dd></div></dl>
+      <p class="nota" style="margin-top:12px">Siguiente paso: calibrar la cancha con 4 o más puntos que se vean en la imagen.</p>
+      <button class="btn pri" data-ir="calibrar" id="ir-calibrar" disabled>Calibrar →</button></div>
+  </div>
+</section>
+
+<!-- ============================================================ CALIBRAR -->
+<section id="tab-calibrar" role="tabpanel" hidden>
+  <h1>Calibrar la cancha</h1>
+  <p class="lead">Marca un punto en la imagen y luego el mismo punto en la cancha de la derecha (se ajusta a la esquina, intersección o
+  punto penal más cercano). Con 4 o más pares la app dibuja en rojo la cancha teórica: si calza con las líneas reales, está bien.</p>
+  <div class="grid-cal">
+    <div class="card">
+      <div class="fila" id="cal-tiempo-fila" style="margin-bottom:10px">
+        <span class="nota">Cuadro</span><input type="range" id="cal-t" min="0" max="10" step="0.04" value="0">
+        <span class="mono" id="cal-t-txt">0:00</span>
+      </div>
+      <div class="marco" id="cal-marco"><img id="cal-img" alt="Cuadro para calibrar"><canvas id="cal-canvas"></canvas></div>
+      <p class="nota" id="cal-ayuda" style="margin:8px 0 0">1) Haz clic en un punto de la imagen.</p>
+    </div>
+    <div>
+      <div class="card">
+        <svg class="cancha" id="cal-cancha" viewBox="-56 -38 112 76" role="img" aria-label="Cancha para elegir el punto"></svg>
+        <div class="fila" style="margin-top:10px">
+          <label class="campo" style="width:90px">Largo (m)<input type="number" id="largo" value="105" min="90" max="120"></label>
+          <label class="campo" style="width:90px">Ancho (m)<input type="number" id="ancho" value="68" min="45" max="90"></label>
+          <label class="fila nota" style="gap:6px;margin-top:18px"><input type="checkbox" id="fija"> Cámara fija (no se mueve)</label>
+          <label class="fila nota" style="gap:6px"><input type="checkbox" id="agregar"> Agregar como otra toma (después de un corte)</label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="fila" style="justify-content:space-between"><h2 style="margin:0">Puntos</h2>
+          <div class="fila"><button class="btn chico" id="cal-deshacer">Deshacer</button><button class="btn chico" id="cal-borrar">Borrar todo</button></div></div>
+        <ul class="puntos" id="cal-lista" style="margin-top:10px"></ul>
+        <div id="cal-msg" class="msg" hidden></div>
+        <button class="btn pri" id="cal-guardar" style="margin-top:12px;width:100%" disabled>Guardar calibración</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ ANALIZAR -->
+<section id="tab-analizar" role="tabpanel" hidden>
+  <h1>Analizar</h1>
+  <p class="lead">La app detecta a los jugadores y el balón, separa los equipos por el color de la camiseta, los ubica en metros sobre
+  la cancha y los sigue cuadro a cuadro. Con un archivo procesa todo el video; con una capturadora o la pantalla sigue el partido en vivo.</p>
+  <div class="grid-cal">
+    <div class="card">
+      <div class="marco" id="an-marco"><div class="vacio" id="an-vacio">El cuadro anotado aparecerá aquí mientras se analiza.</div><img id="an-img" alt="Cuadro analizado" hidden></div>
+      <div class="barra" aria-hidden="true"><i id="an-barra"></i></div>
+      <p class="nota" id="an-estado" style="margin:8px 0 0">Listo para empezar.</p>
+    </div>
+    <div>
+      <div class="card">
+        <h2>Equipos</h2>
+        <div class="fila"><input type="text" id="eq-a" placeholder="Equipo A" style="flex:1"><input type="color" id="col-a" value="#1f6fd1" aria-label="Color de camiseta del equipo A"></div>
+        <div class="fila" style="margin-top:8px"><input type="text" id="eq-b" placeholder="Equipo B" style="flex:1"><input type="color" id="col-b" value="#f2f2f2" aria-label="Color de camiseta del equipo B"></div>
+        <p class="nota" style="margin:8px 0 0">Los colores son opcionales: sin ellos la app encuentra sola los dos colores de camiseta.</p>
+        <h2 style="margin-top:16px">Opciones</h2>
+        <div class="fila">
+          <label class="campo" style="flex:1">Resolución<select id="res"><option value="960">960 px · rápido</option><option value="1280" selected>1280 px</option><option value="1920">1920 px · plano general</option></select></label>
+          <label class="campo" style="flex:1">Detector<select id="det"><option value="yolo">YOLO (red neuronal)</option><option value="cesped">Clásico (sin red)</option></select></label>
+        </div>
+        <div class="fila" style="margin-top:8px">
+          <label class="campo" style="flex:1">Procesar 1 de cada<select id="paso"><option value="1">1 cuadro</option><option value="2">2 cuadros</option><option value="3">3 cuadros</option></select></label>
+          <label class="campo" style="flex:1">Título<input type="text" id="titulo" placeholder="Análisis del partido"></label>
+        </div>
+        <div class="fila" style="margin-top:14px">
+          <button class="btn pri" id="an-iniciar" style="flex:1">Analizar</button>
+          <button class="btn" id="an-detener" disabled>Detener</button>
+        </div>
+        <div id="an-msg" class="msg" hidden></div>
+      </div>
+      <div class="card"><h2>En vivo</h2><div class="kpis" id="an-kpis">
+        <div class="kpi"><div class="et">Cuadros</div><div class="v" id="k-n">–</div></div>
+        <div class="kpi"><div class="et">Velocidad</div><div class="v" id="k-vel">–</div></div>
+        <div class="kpi"><div class="et">Jugadores en cuadro</div><div class="v vs" id="k-vis">–</div></div>
+        <div class="kpi"><div class="et">Posesión</div><div class="v vs" id="k-pos">–</div></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ RESULTADOS -->
+<section id="tab-resultados" role="tabpanel" hidden>
+  <h1>Resultados</h1>
+  <p class="lead" id="res-lead">Cuando termine el análisis verás aquí el video anotado, las métricas y el reporte completo.</p>
+  <div id="res-cont" hidden>
+    <div class="grid2">
+      <div class="card"><h2>Video anotado</h2><div class="marco"><video id="res-video" controls playsinline preload="metadata"></video></div></div>
+      <div class="card"><h2>Resumen</h2><div class="kpis" id="res-kpis"></div>
+        <h2 style="margin-top:16px">Archivos</h2><div id="res-archivos" class="fila"></div></div>
+    </div>
+    <div class="card"><div class="fila" style="justify-content:space-between"><h2 style="margin:0">Reporte</h2>
+      <a class="btn chico" href="/resultados/reporte.html" target="_blank" rel="noopener">Abrir en pestaña nueva ↗</a></div>
+      <iframe class="reporte" id="res-iframe" title="Reporte del análisis" style="margin-top:12px"></iframe></div>
+  </div>
+</section>
+
+<!-- ============================================================ CÓMO DETECTA -->
+<section id="tab-detecta" role="tabpanel" hidden>
+  <h1>Cómo detecta</h1>
+  <p class="lead">Elige un momento y la app te muestra, sobre ese cuadro, cada etapa de la detección en el orden en que la ejecuta.</p>
+  <div class="card">
+    <div class="fila">
+      <span class="nota">Momento</span><input type="range" id="ex-t" min="0" max="10" step="0.04" value="0">
+      <span class="mono" id="ex-t-txt">0:00</span>
+      <button class="btn pri" id="ex-iniciar">Explicar este momento</button>
+    </div>
+    <p class="nota" id="ex-estado" style="margin:8px 0 0">Necesitas un archivo de video abierto y calibrado.</p>
+    <div id="ex-cont" hidden>
+      <nav class="riel" id="ex-riel" aria-label="Etapas de la detección"></nav>
+      <div class="escena">
+        <div class="visor" id="ex-visor"></div>
+        <div class="texto">
+          <div class="nota" id="ex-contador"></div>
+          <h2 id="ex-tit"></h2>
+          <p class="que" id="ex-que"></p>
+          <p id="ex-como"></p>
+          <dl class="datos" id="ex-datos"></dl>
+          <div class="fila" style="margin-top:14px"><button class="btn" id="ex-ant">← Anterior</button><button class="btn pri" id="ex-sig">Siguiente →</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<div id="lupa" hidden><img id="lupa-img" alt="Imagen ampliada"></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const fmtT = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+const num = (v, d=0, suf='') => (v === null || v === undefined || Number.isNaN(+v)) ? '–' : (+v).toLocaleString('es', {minimumFractionDigits:d, maximumFractionDigits:d}) + suf;
+async function api(url, cuerpo) {
+  const r = await fetch(url, cuerpo === undefined ? {} : {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(cuerpo)});
+  let d = null; try { d = await r.json(); } catch (_) {}
+  if (!r.ok) throw new Error((d && d.error) || `Error ${r.status}`);
+  if (d === null) throw new Error('El servidor respondió algo que no se pudo leer. Revisa la consola donde corre el panel.');
+  return d;
+}
+function msg(el, txt, tipo='ok') { el.hidden = !txt; el.className = 'msg ' + tipo; el.textContent = txt || ''; }
+
+const S = {fuente:null, cancha:null, pares:[], pend:{}, lineas:[], errores:[], datosFuente:'statsbomb', comps:[], partidos:[]};
+
+// ------------------------------------------------------------ pestañas
+function irA(tab) {
+  $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
+  $$('main > section').forEach(s => s.hidden = s.id !== 'tab-' + tab);
+  try { localStorage.setItem('analista.tab', tab); } catch (_) {}
+  if (history.replaceState) history.replaceState(null, '', '#' + tab);
+  if (tab === 'calibrar') cargarCalibrar();
+  if (tab === 'resultados') cargarResultados();
+  if (tab === 'datos' && !S.comps.length) cargarCompeticiones();
+  if (tab === 'detecta' && !X.etapas.length) ultimaExplicacion();
+}
+$$('nav.tabs button').forEach(b => b.onclick = () => irA(b.dataset.tab));
+$$('[data-ir]').forEach(b => b.onclick = () => irA(b.dataset.ir));
+
+function pill() {
+  const p = $('#estado-pill');
+  if (!S.fuente) { p.textContent = 'sin fuente'; p.className = 'pill'; return; }
+  p.textContent = S.fuente.tipo === 'archivo' ? 'archivo listo' : 'en vivo'; p.className = 'pill ok';
+}
+
+// ============================================================ DATOS
+$$('[data-fuente]').forEach(b => b.onclick = () => {
+  S.datosFuente = b.dataset.fuente;
+  $$('[data-fuente]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  $('#comp-campo').hidden = S.datosFuente === 'skillcorner';
+  cargarPartidos();
+});
+async function cargarCompeticiones() {
+  try {
+    const d = await api('/api/datos/competiciones');
+    S.comps = d.statsbomb;
+    const sel = $('#comp');
+    // Las más útiles primero: mundiales, copas continentales y ligas con temporada completa
+    const pref = c => /World Cup|Euro|Copa America|African/.test(c.competicion) ? 0 : 1;
+    const orden = [...S.comps].sort((a, b) => pref(a) - pref(b) || a.competicion.localeCompare(b.competicion) || b.temporada.localeCompare(a.temporada));
+    sel.innerHTML = orden.map(c => `<option value="${c.competicion_id}_${c.temporada_id}">${esc(c.competicion)} · ${esc(c.temporada)}${c.genero === 'female' ? ' (fem.)' : ''}</option>`).join('');
+    sel.onchange = cargarPartidos;
+    let guardada = null; try { guardada = localStorage.getItem('analista.comp'); } catch (_) {}
+    if (guardada && [...sel.options].some(o => o.value === guardada)) sel.value = guardada;
+    else { const wc = orden.find(c => c.competicion === 'FIFA World Cup' && c.temporada === '2022'); if (wc) sel.value = `${wc.competicion_id}_${wc.temporada_id}`; }
+    cargarPartidos();
+  } catch (e) { $('#partidos').innerHTML = `<tr><td colspan="6"><div class="msg err">${esc(e.message)}. Revisa la conexión a internet: los datos se descargan una vez y quedan guardados.</div></td></tr>`; }
+}
+async function cargarPartidos() {
+  const tb = $('#partidos');
+  tb.innerHTML = '<tr><td colspan="6" class="nota"><span class="spin"></span>Cargando partidos…</td></tr>';
+  let url = '/api/datos/partidos?fuente=' + S.datosFuente;
+  if (S.datosFuente === 'statsbomb') {
+    const [c, t] = $('#comp').value.split('_');
+    try { localStorage.setItem('analista.comp', $('#comp').value); } catch (_) {}
+    url += `&competicion=${c}&temporada=${t}`;
+    $('#datos-nota').textContent = 'StatsBomb Open Data: eventos con coordenadas, xG y presiones. Uso educativo y de investigación, citando a Hudl StatsBomb.';
+  } else {
+    $('#datos-nota').textContent = 'SkillCorner Open Data (licencia MIT): 20 partidos de la A-League 2024/25 con tracking a 10 Hz. La primera vez se descargan ~90 MB por partido.';
+  }
+  try { S.partidos = (await api(url)).partidos; pintarPartidos(); }
+  catch (e) { tb.innerHTML = `<tr><td colspan="6"><div class="msg err">${esc(e.message)}</div></td></tr>`; }
+}
+function pintarPartidos() {
+  const q = $('#buscar').value.trim().toLowerCase();
+  const lista = S.partidos.filter(p => !q || `${p.local} ${p.visitante}`.toLowerCase().includes(q));
+  $('#partidos').innerHTML = lista.length ? lista.map(p => {
+    const res = (p.goles_local ?? null) !== null ? `${p.goles_local} – ${p.goles_visitante}` : 'vs';
+    return `<tr><td class="mono">${esc(p.fecha || '')}</td><td>${esc(p.local)}</td><td class="marcador" style="text-align:center">${res}</td>
+      <td>${esc(p.visitante)}</td><td class="nota">${esc(p.fase || '')}</td>
+      <td style="text-align:right">${p.reporte ? `<a class="btn chico" href="/reportes/${S.datosFuente}_${p.partido_id}.html" target="_blank" rel="noopener">Abrir</a> ` : ''}
+      <button class="btn chico ${p.reporte ? '' : 'pri'}" data-pid="${p.partido_id}">${p.reporte ? 'Rehacer' : 'Generar reporte'}</button></td></tr>`;
+  }).join('') : '<tr><td colspan="6" class="nota">Sin partidos que coincidan.</td></tr>';
+  $$('#partidos [data-pid]').forEach(b => b.onclick = () => generarReporte(+b.dataset.pid));
+}
+$('#buscar').oninput = pintarPartidos;
+async function generarReporte(pid) {
+  const p = S.partidos.find(x => x.partido_id === pid) || {};
+  const [c, t] = ($('#comp').value || '_').split('_');
+  $('#datos-trabajo').hidden = false;
+  $('#dt-titulo').textContent = `${p.local || ''} – ${p.visitante || ''}`;
+  $('#dt-iframe').hidden = true; $('#dt-abrir').hidden = true; $('#dt-kpis').innerHTML = '';
+  msg($('#dt-estado'), 'Preparando…', 'warn');
+  $('#datos-trabajo').scrollIntoView({behavior:'smooth', block:'start'});
+  try {
+    await api('/api/datos/reporte', {fuente:S.datosFuente, partido_id:pid, competicion:S.datosFuente === 'statsbomb' ? +c : null, temporada:S.datosFuente === 'statsbomb' ? +t : null});
+  } catch (e) { msg($('#dt-estado'), e.message, 'err'); return; }
+  let fallos = 0;
+  const tic = async () => {
+    let d;
+    try { d = await api('/api/datos/trabajo'); fallos = 0; }
+    catch (e) { if (++fallos < 5) { setTimeout(tic, 1500); return; } msg($('#dt-estado'), e.message, 'err'); return; }
+    if (d.estado === 'corriendo') { const s = Math.round(Date.now()/1000 - d.inicio); $('#dt-estado').innerHTML = `<span class="spin"></span>${esc(d.paso || '')}… ${s} s`; $('#dt-estado').className = 'msg warn'; $('#dt-estado').hidden = false; setTimeout(tic, 700); return; }
+    if (d.estado === 'error') { msg($('#dt-estado'), 'No se pudo generar: ' + d.error, 'err'); return; }
+    if (d.estado !== 'listo' || !d.url) { msg($('#dt-estado'), 'El reporte no terminó. Vuelve a intentarlo.', 'err'); return; }
+    $('#dt-estado').hidden = true;
+    kpisDatos(d);
+    $('#dt-iframe').src = d.url + '?v=' + Date.now(); $('#dt-iframe').hidden = false;
+    $('#dt-abrir').href = d.url; $('#dt-abrir').hidden = false;
+    const fila = S.partidos.find(x => x.partido_id === d.partido_id); if (fila) { fila.reporte = true; pintarPartidos(); }
+    cargarReportes();
+  };
+  tic();
+}
+function vs(a, b) { return `<span class="a">${a}</span><small>·</small><span class="b">${b}</span>`; }
+function kpisDatos(d) {
+  const r = d.resumen || {}, n = d.equipos || {}, k = [];
+  const pe = r.por_equipo;
+  if (pe) {
+    k.push(['Marcador', vs(pe.A.goles, pe.B.goles)], ['xG', vs(num(pe.A.xg, 2), num(pe.B.xg, 2))],
+           ['Tiros', vs(pe.A.tiros, pe.B.tiros)], ['Posesión', vs(num(pe.A.posesion, 0, '%'), num(pe.B.posesion, 0, '%'))],
+           ['PPDA', vs(num(pe.A.ppda, 1), num(pe.B.ppda, 1))]);
+  } else if (r.tracking) {
+    const t = r.tracking, m = d.marcador || {};
+    k.push(['Marcador', vs(m.A ?? '–', m.B ?? '–')]);
+    if (t.posesion_pct) k.push(['Posesión', vs(num(t.posesion_pct.A, 0, '%'), num(t.posesion_pct.B, 0, '%'))]);
+    if (t.forma) k.push(['Altura del bloque', vs(num(t.forma.A?.altura_bloque, 0, ' m'), num(t.forma.B?.altura_bloque, 0, ' m'))]);
+    if (t.fisico_equipo) k.push(['Distancia', vs(num((t.fisico_equipo.A?.distancia_total_m || 0)/1000, 1, ' km'), num((t.fisico_equipo.B?.distancia_total_m || 0)/1000, 1, ' km'))]);
+  }
+  $('#dt-kpis').innerHTML = `<div class="kpi" style="grid-column:1/-1;background:none;padding:0"><span class="chip" style="color:var(--a)">● ${esc(n.A)}</span> <span class="chip" style="color:var(--b)">● ${esc(n.B)}</span></div>` +
+    k.map(([e, v]) => `<div class="kpi"><div class="et">${e}</div><div class="v vs">${v}</div></div>`).join('');
+}
+async function cargarReportes() {
+  try {
+    const d = await api('/api/datos/reportes');
+    $('#reportes-lista').innerHTML = d.reportes.length ? '<div class="fila">' + d.reportes.map(r =>
+      `<a class="btn chico" href="${r.url}" target="_blank" rel="noopener"><span class="chip ${r.fuente === 'skillcorner' ? 'ok' : ''}">${r.fuente === 'skillcorner' ? 'tracking' : 'eventos'}</span> ${esc(r.titulo)}</a>`).join('') + '</div>'
+      : 'Todavía no hay reportes en este proyecto.';
+  } catch (_) {}
+}
+
+// ============================================================ FUENTE
+async function abrirFuente(spec) {
+  $('#spec').value = spec;
+  msg($('#fuente-msg'), 'Abriendo…', 'warn');
+  try {
+    const d = await api('/api/fuente', {spec});
+    S.fuente = d; pill();
+    msg($('#fuente-msg'), d.negro ? 'La imagen está negra: si es una capturadora, revisa que el decodificador no bloquee la salida (HDCP).' : 'Fuente lista.', d.negro ? 'warn' : 'ok');
+    $('#fuente-vista').outerHTML = `<div class="marco" id="fuente-vista"><img src="/api/cuadro.jpg?t=0&v=${Date.now()}" alt="Primer cuadro"></div>`;
+    const filas = [['Fuente', d.spec], ['Tipo', d.tipo === 'archivo' ? 'archivo de video' : 'en vivo'], ['Resolución', `${d.ancho_nativo} × ${d.alto_nativo} px`]];
+    if (d.duracion) filas.push(['Duración', `${fmtT(d.duracion)} · ${num(d.fps, 0)} cuadros/s`]);
+    $('#fuente-info').innerHTML = filas.map(([a, b]) => `<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join('');
+    $('#ir-calibrar').disabled = false;
+    for (const id of ['#cal-t', '#ex-t']) { $(id).max = d.duracion ? Math.max(0, d.duracion - 0.1).toFixed(2) : 0; }
+    $('#cal-tiempo-fila').hidden = d.tipo !== 'archivo';
+    // Resolución sugerida: con cámara fija y video grande conviene 1920 (jugadores pequeños)
+    if (d.ancho_nativo >= 1600 && $('#fija').checked) $('#res').value = '1920';
+  } catch (e) { msg($('#fuente-msg'), e.message, 'err'); }
+}
+$('#abrir').onclick = () => abrirFuente($('#spec').value);
+$('#spec').onkeydown = e => { if (e.key === 'Enter') abrirFuente($('#spec').value); };
+$$('[data-spec]').forEach(b => b.onclick = () => abrirFuente(b.dataset.spec));
+
+// ============================================================ CALIBRAR
+const NS = 'http://www.w3.org/2000/svg';
+async function cargarCalibrar() {
+  if (!S.fuente) { $('#cal-ayuda').textContent = 'Primero abre una fuente en la pestaña 1.'; return; }
+  let guardada = null;
+  if (!S.pares.length && !S.calCargada) {
+    S.calCargada = true;
+    try { const c = await api('/api/calibracion');
+      if (c.claves && c.claves[0] && c.claves[0].puntos) {
+        guardada = c;
+        if (c.cancha) { $('#largo').value = c.cancha.largo; $('#ancho').value = c.cancha.ancho; }
+      } } catch (_) {}
+  }
+  const largo = +$('#largo').value || 105, ancho = +$('#ancho').value || 68;
+  if (!S.cancha || S.cancha.largo !== largo || S.cancha.ancho !== ancho) {
+    S.cancha = await api(`/api/cancha?largo=${largo}&ancho=${ancho}`);
+    dibujarCancha();
+  }
+  if (!$('#cal-img').src) cuadroCal();
+  if (guardada) {
+    // los puntos se guardaron en píxeles de la vista previa del panel (mismo ancho)
+    const fx = guardada.resolucion && guardada.resolucion[0] ? S.fuente.ancho / guardada.resolucion[0] : 1;
+    S.pares = guardada.claves[0].puntos.map(p => ({...p, imagen:[+(p.imagen[0] * fx).toFixed(1), +(p.imagen[1] * fx).toFixed(1)]}));
+    $('#fija').checked = !!guardada.camara_fija;
+    if (S.fuente.fps && guardada.claves[0].cuadro) { $('#cal-t').value = guardada.claves[0].cuadro / S.fuente.fps; cuadroCal(); }
+    previsualizar();
+  }
+  listaPuntos();
+}
+function cuadroCal() {
+  const t = +$('#cal-t').value; $('#cal-t-txt').textContent = fmtT(t);
+  $('#cal-img').src = `/api/cuadro.jpg?t=${t}&v=${Date.now()}`;
+}
+$('#cal-t').oninput = () => { $('#cal-t-txt').textContent = fmtT(+$('#cal-t').value); };
+$('#cal-t').onchange = cuadroCal;
+$('#largo').onchange = $('#ancho').onchange = () => { S.cancha = null; cargarCalibrar().then(previsualizar); };
+$('#cal-img').onload = () => { const c = $('#cal-canvas'); c.width = $('#cal-img').naturalWidth; c.height = $('#cal-img').naturalHeight; dibujarImagen(); };
+function dibujarCancha() {
+  const L = S.cancha.largo / 2, W = S.cancha.ancho / 2, svg = $('#cal-cancha');
+  svg.setAttribute('viewBox', `${-L - 3} ${-W - 3} ${2 * L + 6} ${2 * W + 6}`);
+  let h = '';
+  for (const pl of S.cancha.lineas) h += `<polyline class="l" points="${pl.map(([x, y]) => `${x},${-y}`).join(' ')}"/>`;
+  for (const [nombre, [x, y]] of Object.entries(S.cancha.puntos)) h += `<circle class="ref" cx="${x}" cy="${-y}" r="0.9"><title>${esc(nombre)}</title></circle>`;
+  h += '<g id="cal-sel"></g>';
+  svg.innerHTML = h;
+}
+$('#cal-cancha').addEventListener('click', ev => {
+  const svg = $('#cal-cancha'), pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+  let x = p.x, y = -p.y, mejor = null, dmin = 4;
+  for (const [nombre, [rx, ry]] of Object.entries(S.cancha.puntos)) { const d = Math.hypot(rx - x, ry - y); if (d < dmin) { dmin = d; mejor = [rx, ry, nombre]; } }
+  if (mejor) { x = mejor[0]; y = mejor[1]; }
+  S.pend.cancha = [+x.toFixed(2), +y.toFixed(2)]; S.pend.nombre = mejor ? mejor[2] : null;
+  completar();
+});
+$('#cal-canvas').addEventListener('click', ev => {
+  const c = $('#cal-canvas'), r = c.getBoundingClientRect(), im = $('#cal-img');
+  if (!im.complete || !im.naturalWidth || c.width !== im.naturalWidth) return;   // el cuadro aún no cargó
+  S.pend.imagen = [+((ev.clientX - r.left) * c.width / r.width).toFixed(1), +((ev.clientY - r.top) * c.height / r.height).toFixed(1)];
+  completar();
+});
+function completar() {
+  if (S.pend.imagen && S.pend.cancha) { S.pares.push({imagen:S.pend.imagen, cancha:S.pend.cancha, nombre:S.pend.nombre}); S.pend = {}; previsualizar(); }
+  $('#cal-ayuda').textContent = S.pend.imagen ? '2) Ahora marca el mismo punto en la cancha de la derecha.' : S.pend.cancha ? '2) Ahora marca ese punto en la imagen.' : `1) Haz clic en un punto de la imagen. ${S.pares.length < 4 ? `Faltan ${4 - S.pares.length} para calibrar.` : 'Puedes agregar más puntos para afinar.'}`;
+  listaPuntos(); dibujarImagen();
+}
+function listaPuntos() {
+  $('#cal-lista').innerHTML = S.pares.map((p, i) => `<li><span class="n">${i + 1}</span>${esc(p.nombre || `(${p.cancha[0]}, ${p.cancha[1]}) m`)}<span class="err">${S.errores[i] !== undefined ? num(S.errores[i], 2, ' m') : ''}</span></li>`).join('') || '<li class="nota">Sin puntos todavía.</li>';
+  $('#cal-guardar').disabled = S.pares.length < 4;
+  const g = $('#cal-sel'); if (!g) return;
+  g.innerHTML = S.pares.map((p, i) => `<circle class="sel" cx="${p.cancha[0]}" cy="${-p.cancha[1]}" r="1.6"/><text x="${p.cancha[0]}" y="${-p.cancha[1] + 0.85}">${i + 1}</text>`).join('') +
+    (S.pend.cancha ? `<circle class="sel" cx="${S.pend.cancha[0]}" cy="${-S.pend.cancha[1]}" r="1.6" fill-opacity=".5"/>` : '');
+}
+function dibujarImagen() {
+  const c = $('#cal-canvas'), x = c.getContext('2d'); if (!c.width) return;
+  x.clearRect(0, 0, c.width, c.height);
+  const g = Math.max(2, c.width / 640);
+  x.strokeStyle = 'rgba(255,40,40,.95)'; x.lineWidth = g;
+  for (const pl of S.lineas) { x.beginPath(); pl.forEach(([u, v], k) => k ? x.lineTo(u, v) : x.moveTo(u, v)); x.stroke(); }
+  const marca = (u, v, txt, alfa=1) => {
+    x.globalAlpha = alfa; x.fillStyle = '#17a35e'; x.strokeStyle = '#fff'; x.lineWidth = g;
+    x.beginPath(); x.arc(u, v, 9 * g / 2, 0, 7); x.fill(); x.stroke();
+    x.fillStyle = '#fff'; x.font = `bold ${10 * g / 2 + 3}px system-ui`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, u, v + 0.5); x.globalAlpha = 1;
+  };
+  S.pares.forEach((p, i) => marca(p.imagen[0], p.imagen[1], i + 1));
+  if (S.pend.imagen) marca(S.pend.imagen[0], S.pend.imagen[1], S.pares.length + 1, .6);
+}
+async function previsualizar() {
+  S.lineas = []; S.errores = [];
+  if (S.pares.length >= 4) {
+    try {
+      const d = await api('/api/calibracion/previsualizar', {pares:S.pares, largo:+$('#largo').value, ancho:+$('#ancho').value});
+      S.lineas = d.lineas; S.errores = d.errores;
+      msg($('#cal-msg'), (d.avisos || []).join(' '), 'warn');
+    } catch (e) { msg($('#cal-msg'), e.message, 'err'); }
+  } else msg($('#cal-msg'), '');
+  listaPuntos(); dibujarImagen();
+}
+$('#cal-deshacer').onclick = () => { if (S.pend.imagen || S.pend.cancha) S.pend = {}; else S.pares.pop(); previsualizar(); completar(); };
+$('#cal-borrar').onclick = () => { S.pares = []; S.pend = {}; previsualizar(); completar(); };
+$('#cal-guardar').onclick = async () => {
+  try {
+    const d = await api('/api/calibracion', {pares:S.pares, largo:+$('#largo').value, ancho:+$('#ancho').value, camara_fija:$('#fija').checked,
+                                             t:+$('#cal-t').value, agregar:$('#agregar').checked});
+    msg($('#cal-msg'), `Calibración guardada · error medio ${num(d.error_medio_m, 2)} m${d.tomas > 1 ? ` · ${d.tomas} tomas calibradas` : ''}. Siguiente: Analizar.`, 'ok');
+    if (S.fuente && S.fuente.ancho_nativo >= 1600 && $('#fija').checked) $('#res').value = '1920';
+  } catch (e) { msg($('#cal-msg'), e.message, 'err'); }
+};
+
+// ============================================================ ANALIZAR
+function opciones() {
+  const eq = [];
+  for (const k of ['a', 'b']) { const n = $('#eq-' + k).value.trim(); eq.push({nombre:n || null, color:n ? $('#col-' + k).value : null}); }
+  return {equipos:eq, detector:$('#det').value, ancho_proceso:+$('#res').value, imgsz:Math.min(+$('#res').value, 1920),
+          paso:+$('#paso').value, titulo:$('#titulo').value.trim() || null};
+}
+$('#an-iniciar').onclick = async () => {
+  try { await api('/api/analizar', opciones()); msg($('#an-msg'), ''); $('#an-iniciar').disabled = true; $('#an-detener').disabled = false; seguir(); }
+  catch (e) { msg($('#an-msg'), e.message, 'err'); }
+};
+$('#an-detener').onclick = () => api('/api/detener', {});
+let tSeguir = null;
+let fallosSeguir = 0;
+async function seguir() {
+  clearTimeout(tSeguir);
+  let d;
+  try { d = await api('/api/trabajo'); fallosSeguir = 0; }
+  catch (e) {   // el servidor puede tardar en responder mientras carga el modelo: reintentar
+    if (++fallosSeguir < 10) { tSeguir = setTimeout(seguir, 1000); return; }
+    msg($('#an-msg'), e.message, 'err'); $('#an-iniciar').disabled = false; $('#an-detener').disabled = true; return;
+  }
+  if (d.n) { const img = $('#an-img'); img.hidden = false; $('#an-vacio').hidden = true; img.src = '/api/trabajo/cuadro.jpg?n=' + d.n; }
+  $('#k-n').innerHTML = d.n ? `${d.n}${d.total ? `<small> / ${d.total}</small>` : ''}` : '–';
+  $('#k-vel').innerHTML = d.cuadros_por_s ? `${num(d.cuadros_por_s, 1)}<small> cuadros/s</small>` : '–';
+  $('#k-vis').innerHTML = d.visibles ? vs(d.visibles.A, d.visibles.B) : '–';
+  $('#k-pos').innerHTML = d.posesion ? vs(d.posesion.A + '%', d.posesion.B + '%') : '–';
+  $('#an-barra').style.width = d.total ? Math.min(100, 100 * d.n / d.total) + '%' : (d.estado === 'listo' ? '100%' : '0');
+  const est = {corriendo:`Analizando… minuto ${fmtT(d.t_video || 0)} del video${d.calibrado === false ? ' · cámara sin calibrar en este cuadro' : ''}`,
+               'calculando métricas':'Calculando métricas y armando el reporte…', listo:`Listo en ${num(d.segundos, 0)} s. Mira la pestaña Resultados.`,
+               error:'Error: ' + (d.error || ''), inactivo:'Listo para empezar.'};
+  $('#an-estado').textContent = est[d.estado] || d.estado;
+  if (d.estado === 'corriendo' || d.estado === 'calculando métricas') { tSeguir = setTimeout(seguir, 350); return; }
+  $('#an-iniciar').disabled = false; $('#an-detener').disabled = true;
+  if (d.estado === 'listo') { msg($('#an-msg'), 'Análisis terminado.', 'ok'); S.resultados = d; delete $('#res-video').dataset.cargado; }
+  if (d.estado === 'error') msg($('#an-msg'), d.error, 'err');
+}
+
+// ============================================================ RESULTADOS
+async function cargarResultados() {
+  const d = await api('/api/trabajo');
+  const est = await api('/api/estado');
+  if (d.estado !== 'listo' && !est.resultados) return;
+  $('#res-cont').hidden = false; $('#res-lead').textContent = 'Video anotado, métricas y reporte del último análisis.';
+  const v = $('#res-video');
+  if (!v.dataset.cargado) {
+    v.dataset.cargado = '1';
+    // .webm si existe (algunos navegadores sin H.264), si no el .mp4 que graba la app
+    v.innerHTML = '<source src="/resultados/video_anotado.webm" type="video/webm"><source src="/resultados/video_anotado.mp4" type="video/mp4">';
+    v.load();
+  }
+  $('#res-iframe').src = '/resultados/reporte.html?v=' + Date.now();
+  let guardado = {};
+  try { guardado = await api('/api/resultados'); } catch (_) {}
+  const r = guardado.resumen || d.resumen || {}, k = [];
+  if (r.posesion_pct) k.push(['Posesión', vs(num(r.posesion_pct.A, 0, '%'), num(r.posesion_pct.B, 0, '%'))]);
+  if (r.pases) k.push(['Pases completos', vs(r.pases.A?.completados ?? '–', r.pases.B?.completados ?? '–')]);
+  if (r.forma) k.push(['Ancho del equipo', vs(num(r.forma.A?.ancho, 0, ' m'), num(r.forma.B?.ancho, 0, ' m'))]);
+  if (r.calidad) k.push(['Cuadros calibrados', num(r.calidad.pct_cuadros_calibrados, 0, '%')]);
+  const goles = (r.eventos || []).filter(e => e.tipo === 'gol' || e.tipo === 'posible gol').length;
+  k.push(['Goles detectados', goles]);
+  $('#res-kpis').innerHTML = k.map(([e, val]) => `<div class="kpi"><div class="et">${e}</div><div class="v vs">${val}</div></div>`).join('');
+  $('#res-archivos').innerHTML = (guardado.archivos && guardado.archivos.length ? guardado.archivos : (d.archivos || [])).map(a => `<a class="btn chico" href="/resultados/${a}" download>${esc(a)}</a>`).join('');
+}
+
+// ============================================================ CÓMO DETECTA
+const X = {e:0, etapas:[]};
+$('#ex-t').oninput = () => { $('#ex-t-txt').textContent = fmtT(+$('#ex-t').value); };
+$('#ex-iniciar').onclick = async () => {
+  try { await api('/api/explicar', {t:+$('#ex-t').value, opciones:opciones()}); } catch (e) { $('#ex-estado').textContent = e.message; return; }
+  $('#ex-iniciar').disabled = true;
+  let fallos = 0;
+  const tic = async () => {
+    let d;
+    try { d = await api('/api/explicacion'); fallos = 0; }
+    catch (e) { if (++fallos < 10) { setTimeout(tic, 1000); return; } $('#ex-iniciar').disabled = false; $('#ex-estado').textContent = e.message; return; }
+    if (d.estado === 'corriendo') { $('#ex-estado').innerHTML = `<span class="spin"></span>Procesando el video hasta ese instante… ${d.t_video !== undefined ? fmtT(d.t_video) : ''}`; setTimeout(tic, 500); return; }
+    $('#ex-iniciar').disabled = false;
+    if (d.estado === 'error') { $('#ex-estado').textContent = 'Error: ' + d.error; return; }
+    if (d.estado !== 'listo' || !d.etapas) { $('#ex-estado').textContent = 'La explicación no terminó. Vuelve a intentarlo.'; return; }
+    X.etapas = d.etapas; X.e = 0; $('#ex-cont').hidden = false;
+    $('#ex-estado').textContent = 'Listo. Avanza por las etapas con los botones o las flechas del teclado.';
+    etapa();
+  };
+  tic();
+};
+async function ultimaExplicacion() {
+  try {
+    const d = await api('/api/explicacion');
+    if (d.estado === 'listo' && d.etapas) {
+      X.etapas = d.etapas; X.e = 0; $('#ex-cont').hidden = false;
+      $('#ex-t').value = d.t; $('#ex-t-txt').textContent = fmtT(d.t);
+      $('#ex-estado').textContent = `Último momento explicado: ${fmtT(d.t)}. Avanza por las etapas con los botones o las flechas del teclado.`;
+      etapa();
+    }
+  } catch (_) {}
+}
+function etapa() {
+  const et = X.etapas, e = et[X.e];
+  $('#ex-riel').innerHTML = et.map((x, i) => `<button ${i === X.e ? 'aria-current="step"' : ''} data-i="${i}"><b>${i + 1}</b>${esc(x.corto)}</button>`).join('');
+  $$('#ex-riel button').forEach(b => b.onclick = () => { X.e = +b.dataset.i; etapa(); });
+  const v = $('#ex-visor'); v.innerHTML = '';
+  if (e.img) { const im = new Image(); im.src = e.img; im.alt = e.titulo; im.onclick = () => { $('#lupa-img').src = e.img; $('#lupa').hidden = false; }; v.appendChild(im); }
+  if (e.svg) { const m = document.createElement('div'); m.className = 'mapa'; m.innerHTML = e.svg; v.appendChild(m); }
+  $('#ex-contador').textContent = `Etapa ${X.e + 1} de ${et.length}`;
+  $('#ex-tit').textContent = e.titulo; $('#ex-que').textContent = e.que; $('#ex-como').textContent = e.como;
+  $('#ex-datos').innerHTML = e.datos.map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join('');
+  $('#ex-ant').disabled = X.e === 0; $('#ex-sig').disabled = X.e === et.length - 1;
+}
+$('#ex-ant').onclick = () => { if (X.e > 0) { X.e--; etapa(); } };
+$('#ex-sig').onclick = () => { if (X.e < X.etapas.length - 1) { X.e++; etapa(); } };
+$('#lupa').onclick = () => { $('#lupa').hidden = true; };
+document.addEventListener('keydown', k => {
+  if (k.target.closest('input,textarea,select') || $('#tab-detecta').hidden || !X.etapas.length) return;
+  if (k.key === 'ArrowRight') $('#ex-sig').click(); if (k.key === 'ArrowLeft') $('#ex-ant').click(); if (k.key === 'Escape') $('#lupa').hidden = true;
+});
+
+// ------------------------------------------------------------ inicio
+(async () => {
+  try {
+    const e = await api('/api/estado');
+    if (e.fuente) { S.fuente = e.fuente; pill(); $('#spec').value = e.fuente.spec; $('#ir-calibrar').disabled = false;
+      for (const id of ['#cal-t', '#ex-t']) $(id).max = e.fuente.duracion ? Math.max(0, e.fuente.duracion - 0.1).toFixed(2) : 0; }
+  } catch (_) {}
+  let tab = (location.hash || '').slice(1);
+  if (!document.getElementById('tab-' + tab)) { try { tab = localStorage.getItem('analista.tab'); } catch (_) {} }
+  irA(document.getElementById('tab-' + tab) ? tab : 'datos');
+  cargarReportes();
+  const t = await api('/api/trabajo'); if (t.estado === 'corriendo' || t.estado === 'calculando métricas') { $('#an-iniciar').disabled = true; $('#an-detener').disabled = false; seguir(); }
+})();
+})();
+</script>
+</body>
+</html>

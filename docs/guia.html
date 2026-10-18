@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Guía de Analista</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Cómo instalar y usar Analista de fútbol: panel, capturadora HDMI, calibración, datos abiertos, línea de comandos y Python.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<div class="barra"><div class="envoltura">
+  <a class="marca" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><rect x="6" y="9" width="20" height="14" rx="1.5" fill="none" stroke="var(--accent-ink)" stroke-width="2"/><path d="M16 9v14" stroke="var(--accent-ink)" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="none" stroke="var(--accent-ink)" stroke-width="2"/></svg>Analista</a>
+  <nav aria-label="Sitio"><a href="index.html">Inicio</a><a href="deteccion/index.html">Cómo detecta</a><a href="guia.html" aria-current="page">Guía</a><a class="gh" href="https://github.com/jazaineam1/analista-futbol">GitHub</a></nav>
+</div></div>
+
+<main class="envoltura guia">
+<nav class="indice" aria-label="Contenido de la guía">
+  <a href="#requisitos">Qué necesitas</a>
+  <a href="#instalar">Instalar</a>
+  <a href="#televisor">Conectar el televisor</a>
+  <a href="#panel">El panel, paso a paso</a>
+  <a href="#calibrar">Calibrar bien</a>
+  <a href="#datos">Datos abiertos</a>
+  <a href="#cli">Línea de comandos</a>
+  <a href="#python">Desde Python</a>
+  <a href="#archivos">Archivos de salida</a>
+  <a href="#metricas">Qué mide cada métrica</a>
+  <a href="#problemas">Problemas frecuentes</a>
+</nav>
+<article class="cuerpo">
+<p class="eti">Guía de uso · versión 0.3</p>
+<h1 style="font-size:clamp(40px,6vw,64px)">Guía de Analista</h1>
+<p class="lead">Todo lo necesario para analizar un partido: desde un archivo de video o la señal del televisor, o desde datos abiertos de eventos y tracking.</p>
+
+<h2 id="requisitos">Qué necesitas</h2>
+<ul>
+  <li>Un PC con Windows 10/11, macOS o Linux y <b>Python 3.10 o más nuevo</b>.</li>
+  <li>Para analizar video: 8 GB de RAM. Una tarjeta gráfica NVIDIA lo acelera mucho, pero no es obligatoria: en las pruebas, un procesador de 2 núcleos sin GPU procesa de 1 a 3 cuadros por segundo.</li>
+  <li>Para ver el partido del televisor en vivo: una <b>capturadora HDMI USB</b> (las genéricas UVC de 1080p funcionan) y, si quieres seguir viendo en la TV, un divisor HDMI.</li>
+  <li>Para datos abiertos: conexión a internet la primera vez; después todo queda guardado.</li>
+</ul>
+
+<h2 id="instalar">Instalar</h2>
+<pre><span class="c"># con el detector de video (YOLO) y los gráficos</span>
+pip install "analista-futbol[todo] @ git+https://github.com/jazaineam1/analista-futbol"
+
+<span class="c"># solo datos abiertos y reportes (sin red neuronal, instala en segundos)</span>
+pip install "git+https://github.com/jazaineam1/analista-futbol"</pre>
+<p>Comprueba la instalación con <code>analista --version</code>. La primera vez que analices un video se descargan los pesos de YOLO (unos 6 MB).</p>
+<p>Para usar la GPU instala antes PyTorch con CUDA siguiendo <a href="https://pytorch.org/get-started/locally/">pytorch.org</a>.</p>
+
+<h2 id="televisor">Conectar el televisor</h2>
+<p>La app no se conecta al televisor: lee la misma señal que le llega. La forma más simple es poner la capturadora entre el decodificador y la TV:</p>
+<pre>decodificador / consola ──HDMI──▶ divisor ──▶ televisor
+                                     └──────▶ capturadora USB ──▶ PC</pre>
+<p>Después, en el panel, elige la fuente <code>disp:0</code> (o <code>disp:1</code> si tienes una cámara web). También puedes analizar lo que se ve en la pantalla del PC con la fuente <code>pantalla</code>, o un flujo de red con su URL <code>rtsp://…</code>.</p>
+<p class="aviso">Si la vista previa sale negra, la fuente tiene protección de contenido (HDCP). La app no la evita: usa una fuente sin protección, tus propias grabaciones o un servicio que permita ver el partido en el PC.</p>
+
+<h2 id="panel">El panel, paso a paso</h2>
+<p>Ábrelo con <code>analista panel</code>; se abre solo en el navegador, en <code>http://localhost:8765</code>. Todo lo que hagas queda en la carpeta del proyecto (<code>proyecto/</code> por defecto; cámbiala con <code>--carpeta</code>).</p>
+<ol>
+  <li><b>Datos de partidos.</b> Elige una competición de StatsBomb o el tracking de SkillCorner, busca un equipo y pulsa <i>Generar reporte</i>. El reporte aparece debajo y queda guardado en <code>proyecto/reportes/</code>.</li>
+  <li><b>Fuente.</b> Escribe la ruta del video (o usa un atajo para la capturadora o la pantalla) y pulsa <i>Abrir</i>.</li>
+  <li><b>Calibrar.</b> Marca cuatro o más puntos en la imagen y su punto en la cancha. Las líneas rojas te dicen si quedó bien (ver abajo).</li>
+  <li><b>Analizar.</b> Escribe los nombres de los equipos y, si quieres, el color de cada camiseta. Elige la resolución: 1280 px para la cámara de TV; 1920 px para un plano completo fijo, donde los jugadores son pequeños.</li>
+  <li><b>Resultados.</b> El video anotado con el minimapa, las métricas, el reporte y los archivos CSV para descargar.</li>
+  <li><b>Cómo detecta.</b> Elige un instante y recorre las 10 etapas de la detección sobre ese cuadro. Sirve para entender un error: por ejemplo, ver si el balón no se encontró o si la calibración se desvió.</li>
+</ol>
+
+<h2 id="calibrar">Calibrar bien</h2>
+<ul>
+  <li>Usa puntos <b>repartidos</b> por la imagen y que no estén todos sobre una misma línea: esquinas del área, intersecciones de la línea media con el círculo, puntos penales.</li>
+  <li>Marca el punto donde se cruzan las líneas, en el borde del césped, no el centro de la línea pintada.</li>
+  <li>Con 5 o 6 puntos el error medio debería quedar bajo 0,3 m. Si un punto tiene un error mucho mayor que los demás, está mal marcado: <i>Deshacer</i> y vuelve a marcarlo.</li>
+  <li>Marca <i>Cámara fija</i> solo si la cámara no se mueve en todo el video (cámara táctica, grabación desde la tribuna). Con la cámara de TV la app sigue el paneo y el zoom desde el cuadro calibrado.</li>
+  <li>Después de un corte (una repetición, otra cámara) la app intenta volver a ubicar la cámara con las líneas. Si el video tiene varias tomas largas, calibra el primer cuadro de cada una con <i>Agregar como otra toma</i>: es lo más preciso.</li>
+  <li>Si la cámara tiene lente gran angular (líneas curvas), calibra el lente aparte: ver <code>demo/soccertrack_calibracion.py</code>.</li>
+</ul>
+
+<h2 id="datos">Datos abiertos</h2>
+<div class="tabla"><table>
+<tr><th>Fuente</th><th>Qué trae</th><th>Partidos</th><th>Licencia</th></tr>
+<tr><td>StatsBomb Open Data</td><td>Eventos: cada pase, tiro, presión, duelo; con xG y la posición de los jugadores en cada tiro</td><td>Mundiales, Euro, Copa América, ligas completas (casi 4.000)</td><td>Educación e investigación, citando a Hudl StatsBomb</td></tr>
+<tr><td>SkillCorner Open Data</td><td>Tracking de los 22 jugadores y el balón a 10 Hz, extraído del video de TV</td><td>20 partidos de la A-League 2024/25</td><td>MIT</td></tr>
+</table></div>
+<p>Se descargan una sola vez y quedan en <code>~/.cache/analista</code> (cámbialo con la variable <code>ANALISTA_CACHE</code>). El tracking de SkillCorner pesa unos 90 MB por partido.</p>
+<p>Todas las fuentes se convierten al mismo esquema: metros con el origen en el centro de la cancha, <code>A</code> el local y <code>B</code> el visitante. Así, el mismo código analiza un partido de StatsBomb, uno de SkillCorner o tu propio video.</p>
+
+<h2 id="cli">Línea de comandos</h2>
+<div class="tabla"><table>
+<tr><th>Comando</th><th>Para qué</th></tr>
+<tr><td><code>analista panel</code></td><td>Panel web local</td></tr>
+<tr><td><code>analista analizar video.mp4 -c calibracion.json -o resultados</code></td><td>Procesar un archivo completo (o un tramo con <code>--inicio</code> y <code>--fin</code>)</td></tr>
+<tr><td><code>analista vivo disp:0 -c calibracion.json</code></td><td>Seguir un partido en vivo con ventana</td></tr>
+<tr><td><code>analista calibrar video.mp4 --puntos "u,v=x,y;…"</code></td><td>Calibrar sin el panel (píxeles = metros)</td></tr>
+<tr><td><code>analista verificar video.mp4 -c calibracion.json</code></td><td>Imagen con la cancha calibrada en rojo</td></tr>
+<tr><td><code>analista explicar video.mp4 -c calibracion.json -t 20,23</code></td><td>Página con las 10 etapas en esos segundos</td></tr>
+<tr><td><code>analista reporte resultados/</code></td><td>Rehacer el reporte de un análisis</td></tr>
+<tr><td><code>analista datos statsbomb competiciones</code></td><td>Listar competiciones (y <code>partidos COMP TEMP</code>)</td></tr>
+<tr><td><code>analista datos statsbomb reporte 3869685</code></td><td>Reporte de un partido de eventos</td></tr>
+<tr><td><code>analista datos skillcorner reporte 1886347</code></td><td>Reporte de un partido de tracking</td></tr>
+<tr><td><code>analista datos statsbomb eventos 3869685</code></td><td>Exportar los eventos a CSV</td></tr>
+</table></div>
+<p>Opciones útiles de <code>analizar</code>: <code>--equipos "Azul=#1f6fd1,Blanco=#f2f2f2"</code>, <code>--ancho 1920 --imgsz 1920</code> para planos completos, <code>--paso 2</code> para ir el doble de rápido, <code>--detector cesped</code> si no tienes YOLO.</p>
+
+<h2 id="python">Desde Python</h2>
+<pre>from analista import Partido
+from analista import graficos as gr
+
+final = Partido.statsbomb(3869685)            <span class="c"># Argentina – Francia, Mundial 2022</span>
+final.resumen()["por_equipo"]["A"]["xg"]      <span class="c"># 2.76</span>
+gr.tiros(final); gr.red_de_pases(final, "A")
+
+aleague = Partido.skillcorner(1886347)        <span class="c"># tracking a 10 Hz</span>
+aleague.fisico().head()
+gr.control_de_cancha(aleague, t=5059.9)
+
+mio = Partido.video("resultados/")            <span class="c"># lo que salió de analista analizar</span>
+mio.metricas()["resumen"]["posesion_pct"]
+mio.reporte("mi_partido.html")</pre>
+<p>Hay tres notebooks de ejemplo en <a href="https://github.com/jazaineam1/analista-futbol/tree/main/notebooks">notebooks/</a>: eventos de StatsBomb, tracking de SkillCorner y del video a los datos.</p>
+
+<h2 id="archivos">Archivos de salida</h2>
+<div class="tabla"><table>
+<tr><th>Archivo</th><th>Contenido</th></tr>
+<tr><td><code>tracking.csv</code></td><td>Una fila por jugador y cuadro: <code>cuadro, t, id, equipo, x, y</code> (metros), píxel del pie, confianza y calidad de la cámara</td></tr>
+<tr><td><code>balon.csv</code></td><td>Posición del balón en metros y en píxeles</td></tr>
+<tr><td><code>camara.csv</code></td><td>Estado de la cámara en cada cuadro y su homografía (<code>h0…h8</code>, imagen → cancha)</td></tr>
+<tr><td><code>poseedor.csv</code>, <code>toques.csv</code>, <code>pases.csv</code></td><td>Quién tiene el balón, controles y pases estimados</td></tr>
+<tr><td><code>forma.csv</code>, <code>fisico.csv</code>, <code>eventos.csv</code></td><td>Forma del equipo por cuadro, distancia y velocidades, goles y remates detectados</td></tr>
+<tr><td><code>metricas.json</code>, <code>reporte.html</code>, <code>video_anotado.mp4</code></td><td>Resumen, reporte autocontenido y video con anotaciones</td></tr>
+</table></div>
+
+<h2 id="metricas">Qué mide cada métrica</h2>
+<div class="tabla"><table>
+<tr><th>Métrica</th><th>Definición</th></tr>
+<tr><td>Posesión (tracking)</td><td>Tiempo en que el jugador más cercano al balón está a 2 m o menos, por equipo</td></tr>
+<tr><td>Presión recibida</td><td>Rivales a 5 m o menos del jugador con el balón (media)</td></tr>
+<tr><td>Altura del bloque</td><td>Distancia del arco propio al penúltimo jugador más retrasado (la última línea, sin el arquero)</td></tr>
+<tr><td>Ancho, profundidad, compacidad</td><td>Extensión de los jugadores de campo visibles y área de la figura que los envuelve</td></tr>
+<tr><td>Formación</td><td>Posición media de cada jugador respecto del centro del equipo mientras defiende, agrupada en líneas</td></tr>
+<tr><td>Control de cancha</td><td>Qué equipo llega antes a cada punto: tiempo de llegada con 0,7 s de reacción y 5 m/s</td></tr>
+<tr><td>xG</td><td>Probabilidad de gol de un tiro. Modelo propio: regresión logística con distancia, ángulo, cabeza, balón parado, presión, defensores en el cono y posición del arquero. El penal vale 0,78</td></tr>
+<tr><td>PPDA</td><td>Pases del rival en su 60% de cancha divididos por las acciones defensivas propias en esa zona. Más bajo es presión más alta</td></tr>
+<tr><td>Field tilt</td><td>Parte de los pases de ambos equipos en el último tercio que hace cada uno</td></tr>
+<tr><td>Pase progresivo</td><td>Completo, sin balón parado, que acerca el balón al menos un 25% al arco rival y termina en su mitad</td></tr>
+</table></div>
+
+<h2 id="problemas">Problemas frecuentes</h2>
+<h3>La vista previa de la capturadora sale negra</h3>
+<p>La señal tiene HDCP o la capturadora no recibe imagen. Prueba la capturadora con otra fuente (una consola, un portátil). En Windows, cierra otros programas que estén usando la capturadora.</p>
+<h3>Las líneas rojas no calzan</h3>
+<p>Revisa el punto con mayor error en la lista y vuelve a marcarlo. Si las líneas reales se ven curvas, el lente tiene distorsión y hay que calibrarlo aparte.</p>
+<h3>Los equipos salen mezclados</h3>
+<p>Escribe el color de cada camiseta en <i>Analizar</i>. Si un equipo viste un color parecido al del césped o al del rival, la separación por color es más difícil; el arquero y el árbitro aparecen como "otro".</p>
+<h3>Va muy lento</h3>
+<p>Baja la resolución a 960 px, usa <i>Procesar 1 de cada 2 cuadros</i> o instala PyTorch con CUDA si tienes una tarjeta NVIDIA.</p>
+<h3>No encuentra el balón</h3>
+<p>En planos generales el balón mide pocos píxeles y la red COCO lo pierde a menudo. La app lo complementa con un detector de manchas, pero un balón en el aire o tapado no se puede ubicar en metros. Para mejores resultados, entrena un modelo YOLO con imágenes de fútbol y pásalo con <code>--modelo</code>.</p>
+</article>
+</main>
+<footer><div class="envoltura"><span>Analista de fútbol · MIT</span><span>Datos: Hudl StatsBomb Open Data · SkillCorner Open Data · SoccerTrack</span></div></footer>
+</body>
+</html>

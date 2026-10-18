@@ -1,0 +1,125 @@
+{
+  "cancha": {
+    "largo": 104.0,
+    "ancho": 68.0
+  },
+  "resolucion": [
+    1920,
+    1080
+  ],
+  "camara_fija": true,
+  "lente": null,
+  "claves": [
+    {
+      "cuadro": 0,
+      "puntos": [
+        {
+          "imagen": [
+            959.1,
+            1004.2
+          ],
+          "cancha": [
+            0.0,
+            -34.0
+          ],
+          "nombre": "mitad_banda_cercana"
+        },
+        {
+          "imagen": [
+            1519.3,
+            185.0
+          ],
+          "cancha": [
+            52.0,
+            34.0
+          ],
+          "nombre": "esquina_der_lejana"
+        },
+        {
+          "imagen": [
+            402.5,
+            182.9
+          ],
+          "cancha": [
+            -52.0,
+            34.0
+          ],
+          "nombre": "esquina_izq_lejana"
+        },
+        {
+          "imagen": [
+            134.5,
+            759.9
+          ],
+          "cancha": [
+            -52.0,
+            -20.16
+          ],
+          "nombre": "area_grande_izq_fondo_cercana"
+        },
+        {
+          "imagen": [
+            1784.1,
+            756.3
+          ],
+          "cancha": [
+            52.0,
+            -20.16
+          ],
+          "nombre": "area_grande_der_fondo_cercana"
+        },
+        {
+          "imagen": [
+            960.7,
+            392.0
+          ],
+          "cancha": [
+            0.0,
+            9.15
+          ],
+          "nombre": "circulo_lejano"
+        },
+        {
+          "imagen": [
+            1511.2,
+            486.5
+          ],
+          "cancha": [
+            41.0,
+            0.0
+          ],
+          "nombre": "punto_penal_der"
+        },
+        {
+          "imagen": [
+            408.4,
+            487.9
+          ],
+          "cancha": [
+            -41.0,
+            0.0
+          ],
+          "nombre": "punto_penal_izq"
+        }
+      ],
+      "H_img2cancha": [
+        [
+          0.10959660628565437,
+          0.00013551518196719956,
+          -105.41726457431885
+        ],
+        [
+          -3.998914748073573e-05,
+          -0.13084708629913552,
+          64.00751063035545
+        ],
+        [
+          -4.996960115136182e-06,
+          0.0009823753791129235,
+          1.0
+        ]
+      ],
+      "tramo": 0
+    }
+  ]
+}

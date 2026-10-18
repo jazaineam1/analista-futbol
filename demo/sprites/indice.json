@@ -1,0 +1,994 @@
+[
+ {
+  "archivo": "azul_001.png",
+  "kit": "azul",
+  "alto": 134,
+  "ancho": 64,
+  "video": "right_camera.mp4",
+  "cuadro": 0
+ },
+ {
+  "archivo": "azul_002.png",
+  "kit": "azul",
+  "alto": 98,
+  "ancho": 38,
+  "video": "right_camera.mp4",
+  "cuadro": 0
+ },
+ {
+  "archivo": "azul_003.png",
+  "kit": "azul",
+  "alto": 43,
+  "ancho": 17,
+  "video": "right_camera.mp4",
+  "cuadro": 0
+ },
+ {
+  "archivo": "blanco_001.png",
+  "kit": "blanco",
+  "alto": 41,
+  "ancho": 24,
+  "video": "right_camera.mp4",
+  "cuadro": 0
+ },
+ {
+  "archivo": "azul_004.png",
+  "kit": "azul",
+  "alto": 98,
+  "ancho": 34,
+  "video": "right_camera.mp4",
+  "cuadro": 10
+ },
+ {
+  "archivo": "blanco_002.png",
+  "kit": "blanco",
+  "alto": 110,
+  "ancho": 54,
+  "video": "right_camera.mp4",
+  "cuadro": 10
+ },
+ {
+  "archivo": "blanco_003.png",
+  "kit": "blanco",
+  "alto": 91,
+  "ancho": 49,
+  "video": "right_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "azul_005.png",
+  "kit": "azul",
+  "alto": 106,
+  "ancho": 37,
+  "video": "right_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "azul_006.png",
+  "kit": "azul",
+  "alto": 112,
+  "ancho": 44,
+  "video": "right_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "azul_007.png",
+  "kit": "azul",
+  "alto": 88,
+  "ancho": 38,
+  "video": "right_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "blanco_004.png",
+  "kit": "blanco",
+  "alto": 65,
+  "ancho": 22,
+  "video": "right_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "blanco_005.png",
+  "kit": "blanco",
+  "alto": 43,
+  "ancho": 26,
+  "video": "right_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "azul_008.png",
+  "kit": "azul",
+  "alto": 174,
+  "ancho": 84,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "azul_009.png",
+  "kit": "azul",
+  "alto": 70,
+  "ancho": 40,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "azul_010.png",
+  "kit": "azul",
+  "alto": 95,
+  "ancho": 34,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "blanco_006.png",
+  "kit": "blanco",
+  "alto": 148,
+  "ancho": 67,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "blanco_007.png",
+  "kit": "blanco",
+  "alto": 132,
+  "ancho": 63,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "azul_011.png",
+  "kit": "azul",
+  "alto": 92,
+  "ancho": 37,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "azul_012.png",
+  "kit": "azul",
+  "alto": 48,
+  "ancho": 26,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "blanco_008.png",
+  "kit": "blanco",
+  "alto": 101,
+  "ancho": 43,
+  "video": "right_camera.mp4",
+  "cuadro": 31
+ },
+ {
+  "archivo": "azul_013.png",
+  "kit": "azul",
+  "alto": 161,
+  "ancho": 74,
+  "video": "right_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "azul_014.png",
+  "kit": "azul",
+  "alto": 102,
+  "ancho": 47,
+  "video": "right_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "azul_015.png",
+  "kit": "azul",
+  "alto": 144,
+  "ancho": 62,
+  "video": "right_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "blanco_009.png",
+  "kit": "blanco",
+  "alto": 143,
+  "ancho": 52,
+  "video": "right_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "blanco_010.png",
+  "kit": "blanco",
+  "alto": 114,
+  "ancho": 51,
+  "video": "right_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "blanco_011.png",
+  "kit": "blanco",
+  "alto": 66,
+  "ancho": 30,
+  "video": "right_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "azul_016.png",
+  "kit": "azul",
+  "alto": 123,
+  "ancho": 72,
+  "video": "right_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "azul_017.png",
+  "kit": "azul",
+  "alto": 189,
+  "ancho": 64,
+  "video": "right_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "blanco_012.png",
+  "kit": "blanco",
+  "alto": 150,
+  "ancho": 50,
+  "video": "right_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "blanco_013.png",
+  "kit": "blanco",
+  "alto": 86,
+  "ancho": 31,
+  "video": "right_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "azul_018.png",
+  "kit": "azul",
+  "alto": 68,
+  "ancho": 32,
+  "video": "right_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "azul_019.png",
+  "kit": "azul",
+  "alto": 118,
+  "ancho": 47,
+  "video": "right_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "blanco_014.png",
+  "kit": "blanco",
+  "alto": 45,
+  "ancho": 25,
+  "video": "right_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "azul_020.png",
+  "kit": "azul",
+  "alto": 127,
+  "ancho": 31,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "azul_021.png",
+  "kit": "azul",
+  "alto": 92,
+  "ancho": 57,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "azul_022.png",
+  "kit": "azul",
+  "alto": 74,
+  "ancho": 29,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "blanco_015.png",
+  "kit": "blanco",
+  "alto": 97,
+  "ancho": 44,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "azul_023.png",
+  "kit": "azul",
+  "alto": 178,
+  "ancho": 68,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "blanco_016.png",
+  "kit": "blanco",
+  "alto": 97,
+  "ancho": 45,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "blanco_017.png",
+  "kit": "blanco",
+  "alto": 63,
+  "ancho": 24,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "blanco_018.png",
+  "kit": "blanco",
+  "alto": 56,
+  "ancho": 17,
+  "video": "right_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "azul_024.png",
+  "kit": "azul",
+  "alto": 82,
+  "ancho": 50,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "azul_025.png",
+  "kit": "azul",
+  "alto": 49,
+  "ancho": 29,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "blanco_019.png",
+  "kit": "blanco",
+  "alto": 103,
+  "ancho": 44,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "blanco_020.png",
+  "kit": "blanco",
+  "alto": 83,
+  "ancho": 36,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "negro_001.png",
+  "kit": "negro",
+  "alto": 157,
+  "ancho": 60,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "azul_026.png",
+  "kit": "azul",
+  "alto": 202,
+  "ancho": 64,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "blanco_021.png",
+  "kit": "blanco",
+  "alto": 132,
+  "ancho": 54,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "blanco_022.png",
+  "kit": "blanco",
+  "alto": 55,
+  "ancho": 22,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "azul_027.png",
+  "kit": "azul",
+  "alto": 49,
+  "ancho": 25,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "blanco_023.png",
+  "kit": "blanco",
+  "alto": 56,
+  "ancho": 17,
+  "video": "right_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "blanco_024.png",
+  "kit": "blanco",
+  "alto": 97,
+  "ancho": 59,
+  "video": "right_camera.mp4",
+  "cuadro": 83
+ },
+ {
+  "archivo": "negro_002.png",
+  "kit": "negro",
+  "alto": 130,
+  "ancho": 59,
+  "video": "right_camera.mp4",
+  "cuadro": 83
+ },
+ {
+  "archivo": "blanco_025.png",
+  "kit": "blanco",
+  "alto": 81,
+  "ancho": 42,
+  "video": "right_camera.mp4",
+  "cuadro": 83
+ },
+ {
+  "archivo": "blanco_026.png",
+  "kit": "blanco",
+  "alto": 75,
+  "ancho": 25,
+  "video": "right_camera.mp4",
+  "cuadro": 83
+ },
+ {
+  "archivo": "negro_003.png",
+  "kit": "negro",
+  "alto": 146,
+  "ancho": 65,
+  "video": "right_camera.mp4",
+  "cuadro": 93
+ },
+ {
+  "archivo": "blanco_027.png",
+  "kit": "blanco",
+  "alto": 74,
+  "ancho": 35,
+  "video": "right_camera.mp4",
+  "cuadro": 93
+ },
+ {
+  "archivo": "blanco_028.png",
+  "kit": "blanco",
+  "alto": 49,
+  "ancho": 22,
+  "video": "right_camera.mp4",
+  "cuadro": 93
+ },
+ {
+  "archivo": "blanco_029.png",
+  "kit": "blanco",
+  "alto": 60,
+  "ancho": 16,
+  "video": "right_camera.mp4",
+  "cuadro": 93
+ },
+ {
+  "archivo": "azul_028.png",
+  "kit": "azul",
+  "alto": 117,
+  "ancho": 40,
+  "video": "right_camera.mp4",
+  "cuadro": 103
+ },
+ {
+  "archivo": "negro_004.png",
+  "kit": "negro",
+  "alto": 158,
+  "ancho": 72,
+  "video": "right_camera.mp4",
+  "cuadro": 103
+ },
+ {
+  "archivo": "blanco_030.png",
+  "kit": "blanco",
+  "alto": 68,
+  "ancho": 33,
+  "video": "right_camera.mp4",
+  "cuadro": 103
+ },
+ {
+  "archivo": "negro_005.png",
+  "kit": "negro",
+  "alto": 159,
+  "ancho": 73,
+  "video": "right_camera.mp4",
+  "cuadro": 114
+ },
+ {
+  "archivo": "azul_029.png",
+  "kit": "azul",
+  "alto": 95,
+  "ancho": 29,
+  "video": "right_camera.mp4",
+  "cuadro": 114
+ },
+ {
+  "archivo": "blanco_031.png",
+  "kit": "blanco",
+  "alto": 69,
+  "ancho": 22,
+  "video": "right_camera.mp4",
+  "cuadro": 114
+ },
+ {
+  "archivo": "azul_030.png",
+  "kit": "azul",
+  "alto": 119,
+  "ancho": 37,
+  "video": "right_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "negro_006.png",
+  "kit": "negro",
+  "alto": 159,
+  "ancho": 69,
+  "video": "right_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "blanco_032.png",
+  "kit": "blanco",
+  "alto": 70,
+  "ancho": 22,
+  "video": "right_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "blanco_033.png",
+  "kit": "blanco",
+  "alto": 67,
+  "ancho": 36,
+  "video": "right_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "blanco_034.png",
+  "kit": "blanco",
+  "alto": 53,
+  "ancho": 19,
+  "video": "right_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "azul_031.png",
+  "kit": "azul",
+  "alto": 116,
+  "ancho": 39,
+  "video": "right_camera.mp4",
+  "cuadro": 134
+ },
+ {
+  "archivo": "negro_007.png",
+  "kit": "negro",
+  "alto": 157,
+  "ancho": 60,
+  "video": "right_camera.mp4",
+  "cuadro": 134
+ },
+ {
+  "archivo": "negro_008.png",
+  "kit": "negro",
+  "alto": 143,
+  "ancho": 69,
+  "video": "right_camera.mp4",
+  "cuadro": 145
+ },
+ {
+  "archivo": "blanco_035.png",
+  "kit": "blanco",
+  "alto": 73,
+  "ancho": 36,
+  "video": "right_camera.mp4",
+  "cuadro": 145
+ },
+ {
+  "archivo": "azul_032.png",
+  "kit": "azul",
+  "alto": 65,
+  "ancho": 30,
+  "video": "right_camera.mp4",
+  "cuadro": 145
+ },
+ {
+  "archivo": "blanco_036.png",
+  "kit": "blanco",
+  "alto": 59,
+  "ancho": 23,
+  "video": "right_camera.mp4",
+  "cuadro": 145
+ },
+ {
+  "archivo": "negro_009.png",
+  "kit": "negro",
+  "alto": 157,
+  "ancho": 49,
+  "video": "right_camera.mp4",
+  "cuadro": 155
+ },
+ {
+  "archivo": "azul_033.png",
+  "kit": "azul",
+  "alto": 86,
+  "ancho": 33,
+  "video": "right_camera.mp4",
+  "cuadro": 155
+ },
+ {
+  "archivo": "blanco_037.png",
+  "kit": "blanco",
+  "alto": 84,
+  "ancho": 35,
+  "video": "right_camera.mp4",
+  "cuadro": 155
+ },
+ {
+  "archivo": "blanco_038.png",
+  "kit": "blanco",
+  "alto": 85,
+  "ancho": 35,
+  "video": "right_camera.mp4",
+  "cuadro": 155
+ },
+ {
+  "archivo": "blanco_039.png",
+  "kit": "blanco",
+  "alto": 91,
+  "ancho": 55,
+  "video": "right_camera.mp4",
+  "cuadro": 166
+ },
+ {
+  "archivo": "negro_010.png",
+  "kit": "negro",
+  "alto": 157,
+  "ancho": 54,
+  "video": "right_camera.mp4",
+  "cuadro": 166
+ },
+ {
+  "archivo": "azul_034.png",
+  "kit": "azul",
+  "alto": 97,
+  "ancho": 31,
+  "video": "right_camera.mp4",
+  "cuadro": 166
+ },
+ {
+  "archivo": "azul_035.png",
+  "kit": "azul",
+  "alto": 69,
+  "ancho": 25,
+  "video": "right_camera.mp4",
+  "cuadro": 166
+ },
+ {
+  "archivo": "negro_011.png",
+  "kit": "negro",
+  "alto": 156,
+  "ancho": 72,
+  "video": "right_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "azul_036.png",
+  "kit": "azul",
+  "alto": 103,
+  "ancho": 40,
+  "video": "right_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "azul_037.png",
+  "kit": "azul",
+  "alto": 86,
+  "ancho": 33,
+  "video": "right_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "azul_038.png",
+  "kit": "azul",
+  "alto": 56,
+  "ancho": 31,
+  "video": "right_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "negro_012.png",
+  "kit": "negro",
+  "alto": 70,
+  "ancho": 23,
+  "video": "right_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "azul_039.png",
+  "kit": "azul",
+  "alto": 67,
+  "ancho": 32,
+  "video": "right_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "negro_013.png",
+  "kit": "negro",
+  "alto": 128,
+  "ancho": 69,
+  "video": "right_camera.mp4",
+  "cuadro": 186
+ },
+ {
+  "archivo": "blanco_040.png",
+  "kit": "blanco",
+  "alto": 96,
+  "ancho": 37,
+  "video": "right_camera.mp4",
+  "cuadro": 186
+ },
+ {
+  "archivo": "azul_040.png",
+  "kit": "azul",
+  "alto": 84,
+  "ancho": 31,
+  "video": "right_camera.mp4",
+  "cuadro": 186
+ },
+ {
+  "archivo": "negro_014.png",
+  "kit": "negro",
+  "alto": 67,
+  "ancho": 22,
+  "video": "right_camera.mp4",
+  "cuadro": 186
+ },
+ {
+  "archivo": "negro_015.png",
+  "kit": "negro",
+  "alto": 143,
+  "ancho": 74,
+  "video": "right_camera.mp4",
+  "cuadro": 207
+ },
+ {
+  "archivo": "negro_016.png",
+  "kit": "negro",
+  "alto": 147,
+  "ancho": 70,
+  "video": "right_camera.mp4",
+  "cuadro": 238
+ },
+ {
+  "archivo": "negro_017.png",
+  "kit": "negro",
+  "alto": 107,
+  "ancho": 56,
+  "video": "left_camera.mp4",
+  "cuadro": 0
+ },
+ {
+  "archivo": "negro_018.png",
+  "kit": "negro",
+  "alto": 107,
+  "ancho": 57,
+  "video": "left_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "negro_019.png",
+  "kit": "negro",
+  "alto": 71,
+  "ancho": 39,
+  "video": "left_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "amarillo_001.png",
+  "kit": "amarillo",
+  "alto": 37,
+  "ancho": 13,
+  "video": "left_camera.mp4",
+  "cuadro": 20
+ },
+ {
+  "archivo": "negro_020.png",
+  "kit": "negro",
+  "alto": 52,
+  "ancho": 18,
+  "video": "left_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "negro_021.png",
+  "kit": "negro",
+  "alto": 68,
+  "ancho": 40,
+  "video": "left_camera.mp4",
+  "cuadro": 41
+ },
+ {
+  "archivo": "negro_022.png",
+  "kit": "negro",
+  "alto": 106,
+  "ancho": 58,
+  "video": "left_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "negro_023.png",
+  "kit": "negro",
+  "alto": 68,
+  "ancho": 41,
+  "video": "left_camera.mp4",
+  "cuadro": 51
+ },
+ {
+  "archivo": "negro_024.png",
+  "kit": "negro",
+  "alto": 105,
+  "ancho": 60,
+  "video": "left_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "negro_025.png",
+  "kit": "negro",
+  "alto": 59,
+  "ancho": 24,
+  "video": "left_camera.mp4",
+  "cuadro": 62
+ },
+ {
+  "archivo": "negro_026.png",
+  "kit": "negro",
+  "alto": 105,
+  "ancho": 60,
+  "video": "left_camera.mp4",
+  "cuadro": 72
+ },
+ {
+  "archivo": "negro_027.png",
+  "kit": "negro",
+  "alto": 104,
+  "ancho": 59,
+  "video": "left_camera.mp4",
+  "cuadro": 83
+ },
+ {
+  "archivo": "negro_028.png",
+  "kit": "negro",
+  "alto": 106,
+  "ancho": 57,
+  "video": "left_camera.mp4",
+  "cuadro": 93
+ },
+ {
+  "archivo": "negro_029.png",
+  "kit": "negro",
+  "alto": 107,
+  "ancho": 57,
+  "video": "left_camera.mp4",
+  "cuadro": 103
+ },
+ {
+  "archivo": "negro_030.png",
+  "kit": "negro",
+  "alto": 107,
+  "ancho": 58,
+  "video": "left_camera.mp4",
+  "cuadro": 114
+ },
+ {
+  "archivo": "negro_031.png",
+  "kit": "negro",
+  "alto": 82,
+  "ancho": 26,
+  "video": "left_camera.mp4",
+  "cuadro": 114
+ },
+ {
+  "archivo": "amarillo_002.png",
+  "kit": "amarillo",
+  "alto": 38,
+  "ancho": 14,
+  "video": "left_camera.mp4",
+  "cuadro": 114
+ },
+ {
+  "archivo": "negro_032.png",
+  "kit": "negro",
+  "alto": 68,
+  "ancho": 40,
+  "video": "left_camera.mp4",
+  "cuadro": 114
+ },
+ {
+  "archivo": "negro_033.png",
+  "kit": "negro",
+  "alto": 106,
+  "ancho": 60,
+  "video": "left_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "negro_034.png",
+  "kit": "negro",
+  "alto": 67,
+  "ancho": 25,
+  "video": "left_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "amarillo_003.png",
+  "kit": "amarillo",
+  "alto": 39,
+  "ancho": 13,
+  "video": "left_camera.mp4",
+  "cuadro": 124
+ },
+ {
+  "archivo": "amarillo_004.png",
+  "kit": "amarillo",
+  "alto": 46,
+  "ancho": 18,
+  "video": "left_camera.mp4",
+  "cuadro": 155
+ },
+ {
+  "archivo": "negro_035.png",
+  "kit": "negro",
+  "alto": 72,
+  "ancho": 23,
+  "video": "left_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "negro_036.png",
+  "kit": "negro",
+  "alto": 98,
+  "ancho": 59,
+  "video": "left_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "negro_037.png",
+  "kit": "negro",
+  "alto": 51,
+  "ancho": 13,
+  "video": "left_camera.mp4",
+  "cuadro": 176
+ },
+ {
+  "archivo": "negro_038.png",
+  "kit": "negro",
+  "alto": 85,
+  "ancho": 22,
+  "video": "left_camera.mp4",
+  "cuadro": 186
+ },
+ {
+  "archivo": "negro_039.png",
+  "kit": "negro",
+  "alto": 96,
+  "ancho": 59,
+  "video": "left_camera.mp4",
+  "cuadro": 186
+ },
+ {
+  "archivo": "negro_040.png",
+  "kit": "negro",
+  "alto": 98,
+  "ancho": 60,
+  "video": "left_camera.mp4",
+  "cuadro": 197
+ }
+]

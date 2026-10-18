@@ -1,0 +1,203 @@
+{
+  "cancha": {
+    "largo": 104.0,
+    "ancho": 68.0
+  },
+  "resolucion": [
+    1280,
+    720
+  ],
+  "camara_fija": false,
+  "lente": null,
+  "claves": [
+    {
+      "cuadro": 0,
+      "puntos": [
+        {
+          "imagen": [
+            529.8,
+            316.6
+          ],
+          "cancha": [
+            0.0,
+            -9.15
+          ],
+          "nombre": "circulo_cercano"
+        },
+        {
+          "imagen": [
+            229.9,
+            219.3
+          ],
+          "cancha": [
+            -9.15,
+            0.0
+          ],
+          "nombre": "circulo_izquierdo"
+        },
+        {
+          "imagen": [
+            825.7,
+            207.8
+          ],
+          "cancha": [
+            9.15,
+            0.0
+          ],
+          "nombre": "circulo_derecho"
+        },
+        {
+          "imagen": [
+            526.8,
+            135.3
+          ],
+          "cancha": [
+            0.0,
+            9.15
+          ],
+          "nombre": "circulo_lejano"
+        },
+        {
+          "imagen": [
+            528.0,
+            212.6
+          ],
+          "cancha": [
+            0.0,
+            0.0
+          ],
+          "nombre": "centro"
+        }
+      ],
+      "H_img2cancha": [
+        [
+          0.047344336107326815,
+          -0.0007815523554521518,
+          -24.834147369863732
+        ],
+        [
+          -0.0030615913822181627,
+          -0.1586263857304558,
+          35.44049706544092
+        ],
+        [
+          4.230001689929658e-05,
+          0.0024330263830401916,
+          1.0
+        ]
+      ],
+      "tramo": 0
+    },
+    {
+      "cuadro": 731,
+      "puntos": [
+        {
+          "imagen": [
+            771.4,
+            433.5
+          ],
+          "cancha": [
+            35.5,
+            -20.16
+          ],
+          "nombre": "area_grande_der_frente_cercana"
+        },
+        {
+          "imagen": [
+            54.4,
+            102.2
+          ],
+          "cancha": [
+            35.5,
+            20.16
+          ],
+          "nombre": "area_grande_der_frente_lejana"
+        },
+        {
+          "imagen": [
+            466.6,
+            46.9
+          ],
+          "cancha": [
+            52.0,
+            20.16
+          ],
+          "nombre": "area_grande_der_fondo_lejana"
+        },
+        {
+          "imagen": [
+            993.2,
+            219.2
+          ],
+          "cancha": [
+            52.0,
+            -9.16
+          ],
+          "nombre": "area_chica_der_fondo_cercana"
+        },
+        {
+          "imagen": [
+            633.2,
+            103.2
+          ],
+          "cancha": [
+            52.0,
+            9.16
+          ],
+          "nombre": "area_chica_der_fondo_lejana"
+        },
+        {
+          "imagen": [
+            503.1,
+            208.9
+          ],
+          "cancha": [
+            41.0,
+            0.0
+          ],
+          "nombre": "punto_penal_der"
+        },
+        {
+          "imagen": [
+            843.7,
+            248.8
+          ],
+          "cancha": [
+            46.5,
+            -9.16
+          ],
+          "nombre": "area_chica_der_frente_cercana"
+        },
+        {
+          "imagen": [
+            494.9,
+            123.8
+          ],
+          "cancha": [
+            46.5,
+            9.16
+          ],
+          "nombre": "area_chica_der_frente_lejana"
+        }
+      ],
+      "H_img2cancha": [
+        [
+          0.03265228582766473,
+          -0.009630654364502575,
+          41.21121377049353
+        ],
+        [
+          -0.022535341216394486,
+          -0.12981682265463426,
+          38.32323352507119
+        ],
+        [
+          -1.42672303575268e-05,
+          0.0017620240464144507,
+          1.0
+        ]
+      ],
+      "tramo": 1
+    }
+  ]
+}

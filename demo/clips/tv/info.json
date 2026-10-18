@@ -1,0 +1,63 @@
+{
+  "fuente": "SkillCorner Open Data, partido 1886347",
+  "camara": "tv",
+  "fps": 25.0,
+  "resolucion": [
+    1280,
+    720
+  ],
+  "cancha": {
+    "largo": 104.0,
+    "ancho": 68.0
+  },
+  "tramos": [
+    {
+      "tramo": 0,
+      "cuadros_sc": [
+        50377,
+        50657
+      ],
+      "cuadro_ini": 0,
+      "cuadro_fin": 700,
+      "t_ini": 0.0,
+      "t_fin": 28.0
+    },
+    {
+      "tramo": 1,
+      "cuadros_sc": [
+        53770,
+        53858
+      ],
+      "cuadro_ini": 731,
+      "cuadro_fin": 951,
+      "t_ini": 29.24,
+      "t_fin": 38.04
+    }
+  ],
+  "goles": [
+    {
+      "t": 22.2,
+      "equipo": "A",
+      "jugador": "N. Moreno",
+      "cuadro_sc": 50599
+    },
+    {
+      "t": 31.24,
+      "equipo": "A",
+      "jugador": "M. Mata",
+      "cuadro_sc": 53790
+    }
+  ],
+  "equipos": {
+    "A": {
+      "nombre": "Auckland FC",
+      "kit": "azul"
+    },
+    "B": {
+      "nombre": "Newcastle United Jets FC",
+      "kit": "blanco"
+    }
+  },
+  "ruido_clic_px": 2.0,
+  "cuadros": 952
+}
