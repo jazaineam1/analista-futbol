@@ -37,6 +37,27 @@ def svg_tiros(svg: SvgCancha, tiros: pd.DataFrame, nombres: dict) -> str:
     return svg.envolver("".join(out), "Mapa de tiros")
 
 
+def _seccion_var(partido) -> tuple[str, str, str]:
+    """VAR con las capturas 360 (solo algunas competiciones las tienen)."""
+    from ..datos import statsbomb as sb
+    pid = partido.info.get("partido_id")
+    try:
+        tres = sb.tres_sesenta(int(pid)) if pid is not None else None
+    except Exception:  # noqa: BLE001  (sin conexión: el reporte sale sin VAR)
+        tres = None
+    if not tres:
+        return "", "", ""
+    from ..var_partido import var_statsbomb
+    from .var import seccion_var
+    rev, _ = var_statsbomb(partido, tres=tres)
+    html, css = seccion_var(rev, None, {}, partido.nombres, partido.cancha.largo, partido.cancha.ancho,
+                            "capturas 360 de StatsBomb (posiciones de los jugadores visibles en el instante del pase)")
+    nota = ("<li>VAR con capturas 360: muestran solo a los jugadores que se ven en la transmisión en el instante del pase "
+            "(zona punteada) y no dicen quién es cada uno; el receptor se estima como el compañero más cercano al destino "
+            "del pase. Error de posición supuesto ±0,6 m por jugador.</li>")
+    return html, css, nota
+
+
 def reporte_eventos(partido, ruta: Path, titulo: str | None = None) -> Path:
     ev = partido.eventos
     L = partido.cancha.largo
@@ -48,6 +69,7 @@ def reporte_eventos(partido, ruta: Path, titulo: str | None = None) -> Path:
     info = partido.info
     sub = " · ".join(str(x) for x in (info.get("competicion"), info.get("temporada"), info.get("fase"),
                                        info.get("fecha"), info.get("estadio")) if x)
+    var_html, var_css, nota_var = _seccion_var(partido)
     a, b = pe["A"], pe["B"]
     kpis = "".join([
         kpi("Goles esperados (xG)", num(a["xg"], 2), num(b["xg"], 2), f"goles: {a['goles']} · {b['goles']}"),
@@ -132,14 +154,15 @@ Tamaño = xG; borde oscuro = gol. Pasa el cursor para ver el tirador y el xG de 
 <div class="grid2">{"".join(calores)}</div>
 <h2>Jugadores destacados</h2>
 <div class="card scroll"><table><tr><th>Jugador</th><th>Goles</th><th>xG</th><th>Tiros</th><th>Pases progresivos</th><th>Presiones</th></tr>{filas_top}</table></div>
+{var_html}
 <h2>Notas</h2>
 <div class="card"><ul class="nota">
 <li>xG de StatsBomb y xG de nuestro modelo (regresión logística entrenada con 9.817 tiros de la Premier League 2015/16;
 en 4.709 tiros sin penales de torneos internacionales predice 434,7 goles frente a 435 reales; el penal vale 0,78).</li>
 <li>Pases progresivos: completos, sin balón parado, que acercan el balón al menos un 25% al arco rival y terminan en su mitad.</li>
 <li>PPDA: pases del rival en su 60% de cancha divididos por duelos, intercepciones, faltas y bloqueos propios en esa zona.</li>
-<li>Se excluye la tanda de penales. Fuente de los datos: {e(info.get("fuente", ""))}{" (Hudl StatsBomb)" if "StatsBomb" in str(info.get("fuente")) else ""}.</li>
+{nota_var}<li>Se excluye la tanda de penales. Fuente de los datos: {e(info.get("fuente", ""))}{" (Hudl StatsBomb)" if "StatsBomb" in str(info.get("fuente")) else ""}.</li>
 </ul></div>"""
     ruta.parent.mkdir(parents=True, exist_ok=True)
-    ruta.write_text(pagina(titulo, cuerpo, {"resumen": r}), encoding="utf-8")
+    ruta.write_text(pagina(titulo, cuerpo, {"resumen": r}, extra_css=var_css), encoding="utf-8")
     return ruta

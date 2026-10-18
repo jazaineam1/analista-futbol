@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "analista-futbol"
 dynamic = ["version"]
-description = "Análisis de datos de fútbol: lee un partido desde el video (TV, capturadora o archivo) y analiza eventos y tracking abiertos (StatsBomb, SkillCorner)."
+description = "Análisis de datos de fútbol: lee un partido desde el video (TV, pantalla del PC o archivo), revisa jugadas tipo VAR y analiza eventos y tracking abiertos (StatsBomb, SkillCorner)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "jazaineam1" }]
-keywords = ["futbol", "soccer", "football", "analytics", "tracking", "computer-vision", "xg", "statsbomb", "skillcorner"]
+keywords = ["futbol", "soccer", "football", "analytics", "tracking", "computer-vision", "xg", "var", "offside", "statsbomb", "skillcorner"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
@@ -27,13 +27,15 @@ dependencies = [
   "requests>=2.28",
   "flask>=2.3",
   "imageio-ffmpeg>=0.4.9",
+  "mss>=9.0",
+  "pillow>=9.0",
 ]
 
 [project.optional-dependencies]
-video = ["ultralytics>=8.3", "mss>=9.0"]
+video = ["ultralytics>=8.3"]
 graficos = ["matplotlib>=3.7"]
 dev = ["pytest>=7", "matplotlib>=3.7", "ruff>=0.4"]
-todo = ["ultralytics>=8.3", "mss>=9.0", "matplotlib>=3.7"]
+todo = ["ultralytics>=8.3", "matplotlib>=3.7"]
 
 [project.scripts]
 analista = "analista.cli:main"
@@ -50,7 +52,7 @@ version = { attr = "analista.__version__" }
 include = ["analista*"]
 
 [tool.setuptools.package-data]
-analista = ["modelos/*.json", "panel/web/*"]
+analista = ["modelos/*.json", "panel/web/*", "reportes/activos/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

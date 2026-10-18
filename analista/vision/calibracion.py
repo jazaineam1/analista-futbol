@@ -29,6 +29,7 @@ class Calibracion:
     camara_fija: bool = False
     lente: dict | None = None
     claves: list[dict] = field(default_factory=list)
+    carpeta: Path | None = None      # donde está el .json (para las imágenes de referencia)
 
     # ------------------------------------------------------------ E/S
     @staticmethod
@@ -37,7 +38,8 @@ class Calibracion:
         c = d.get("cancha", {})
         cal = Calibracion(Cancha(largo=c.get("largo", 105.0), ancho=c.get("ancho", 68.0)),
                           tuple(d["resolucion"]) if d.get("resolucion") else None,
-                          bool(d.get("camara_fija", False)), d.get("lente"), d.get("claves", []))
+                          bool(d.get("camara_fija", False)), d.get("lente"), d.get("claves", []),
+                          Path(ruta).resolve().parent)
         for k in cal.claves:  # recalcular H si solo hay puntos
             if not k.get("H_img2cancha") and len(k.get("puntos", [])) >= 4:
                 k["H_img2cancha"] = h_desde_puntos([p["imagen"] for p in k["puntos"]],
@@ -64,6 +66,22 @@ class Calibracion:
                 continue
             H = np.asarray(k["H_img2cancha"], float) @ S
             out[int(k.get("cuadro") or 0)] = H / H[2, 2]
+        return out
+
+    def referencias(self, ancho: int, alto: int) -> list[tuple[np.ndarray, np.ndarray]]:
+        """Imágenes de referencia guardadas con la calibración (en vivo: el cuadro congelado que
+        se calibró), reescaladas a (ancho, alto), con su homografía: [(imagen BGR, H)]."""
+        out = []
+        Hs = self.homografias(ancho, alto)
+        for k in self.claves:
+            nombre = k.get("imagen_ref")
+            if not nombre or self.carpeta is None:
+                continue
+            img = cv2.imread(str(self.carpeta / nombre))
+            H = Hs.get(int(k.get("cuadro") if k.get("cuadro") is not None else 0))
+            if img is None or H is None:
+                continue
+            out.append((cv2.resize(img, (ancho, alto), interpolation=cv2.INTER_AREA), H))
         return out
 
     def corrector_lente(self, ancho: int, alto: int):

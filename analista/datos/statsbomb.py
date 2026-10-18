@@ -49,6 +49,16 @@ def eventos_crudos(partido_id: int) -> list[dict]:
     return json_remoto(f"{BASE}/events/{partido_id}.json", _cache("events", f"{partido_id}.json"))
 
 
+def tres_sesenta(partido_id: int) -> dict[str, dict] | None:
+    """Capturas 360 (posiciones de los jugadores visibles en cada evento), por id de evento.
+    Solo existen para algunas competiciones (Mundial 2022, Euro 2020 y 2024, …): None si no hay."""
+    try:
+        d = json_remoto(f"{BASE}/three-sixty/{partido_id}.json", _cache("three-sixty", f"{partido_id}.json"))
+    except FileNotFoundError:
+        return None
+    return {f["event_uuid"]: f for f in d}
+
+
 def alineaciones(partido_id: int) -> list[dict]:
     return json_remoto(f"{BASE}/lineups/{partido_id}.json", _cache("lineups", f"{partido_id}.json"))
 
@@ -149,6 +159,14 @@ def eventos(partido_id: int | None = None, crudos: list[dict] | None = None, can
         elif tipo_o == "Goal Keeper":
             f["subtipo"] = _nombre(e, "goalkeeper", "type", "name")
             f["resultado"] = _nombre(e, "goalkeeper", "outcome", "name")
+        elif tipo_o == "Foul Committed":
+            fc = e.get("foul_committed", {}) or {}
+            f["subtipo"] = _nombre(fc, "type", "name")
+            f["contexto"] = {"penal": bool(fc.get("penalty", False)), "tarjeta": _nombre(fc, "card", "name"),
+                             "ventaja": bool(fc.get("advantage", False))}
+        elif tipo_o == "Foul Won":
+            fw = e.get("foul_won", {}) or {}
+            f["contexto"] = {"penal": bool(fw.get("penalty", False))}
         elif tipo_o == "Substitution":
             f["receptor"] = _nombre(e, "substitution", "replacement", "name")
         filas.append(f)

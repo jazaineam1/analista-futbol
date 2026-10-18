@@ -127,9 +127,51 @@ iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--li
 .chip.ok{background:var(--accent-soft);color:var(--accent)}
 #lupa{position:fixed;inset:0;background:rgba(0,0,0,.86);display:flex;align-items:flex-start;justify-content:center;overflow:auto;z-index:20;padding:16px;cursor:zoom-out}
 #lupa img{max-width:none;border-radius:4px}
+.tipos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+@media (max-width:900px){.tipos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tipo{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--surface);border:1px solid var(--line);
+border-radius:var(--radius);padding:14px;cursor:pointer;min-width:0}
+.tipo:hover{background:var(--surface2)}
+.tipo[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.tipo svg{width:24px;height:24px;color:var(--accent);margin-bottom:4px}
+.tipo b{font-size:15px}.tipo span{font-size:13px;color:var(--ink2)}
+.soltar{display:block;border:2px dashed var(--line);border-radius:var(--radius);padding:30px 16px;text-align:center;color:var(--ink2);cursor:pointer;background:var(--surface2)}
+.soltar:hover,.soltar.encima{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.soltar b{display:block;font-size:16px;color:var(--ink);margin-bottom:2px}
+.soltar input{position:absolute;width:1px;height:1px;opacity:0}
+.sel-zona{position:absolute;border:2px solid #ffd400;background:rgba(255,212,0,.16);box-shadow:0 0 0 9999px rgba(0,0,0,.35);pointer-events:none}
+.marco.elegir{cursor:crosshair;touch-action:none;user-select:none}
+.disp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:12px}
+.disp{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface2);display:flex;flex-direction:column}
+.disp img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#000}
+.disp .cuerpo{padding:10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.disp .cuerpo b{overflow-wrap:anywhere}
+.videos{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.videos li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.videos li .nom{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.videos li .nota{white-space:nowrap}
+ol.pasos{margin:6px 0 0;padding-left:20px;color:var(--ink2)}ol.pasos li{margin:2px 0}
+.en-vivo{display:inline-flex;align-items:center;gap:6px}.en-vivo::before{content:"";width:8px;height:8px;border-radius:50%;background:#e5372b}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;margin-right:6px}
 @media (prefers-reduced-motion:no-preference){.spin{animation:gira .8s linear infinite}@keyframes gira{to{transform:rotate(360deg)}}}
+.var-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:980px){.var-grid{grid-template-columns:1fr}}
+.var-lista{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:560px;overflow:auto}
+.var-lista button{width:100%;text-align:left;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:baseline;
+background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer;color:var(--ink)}
+.var-lista button:hover{border-color:var(--muted)}
+.var-lista button[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.var-lista .min{font:600 13px var(--mono);color:var(--ink2)}.var-lista .tit{font-weight:600;font-size:14px}
+.var-lista .txt{grid-column:2;font-size:13px;color:var(--ink2)}
+.ver-chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+background:var(--line);color:var(--ink2);margin-left:6px;vertical-align:1px}
+.ver-chip.mal{background:#e0362b;color:#fff}.ver-chip.ok{background:#1d9a57;color:#fff}.ver-chip.duda{background:#c98500;color:#fff}
+.var-foto img,.var-foto video{width:100%;height:auto;border-radius:8px;display:block;background:#000}
+.var-foto .nota{margin:6px 0 0}
+#vm-marco{cursor:crosshair}
+#vm-t{flex:1}
 </style>
+<link rel="stylesheet" href="/activos/repeticion.css">
 </head>
 <body>
 <header>
@@ -142,6 +184,7 @@ iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--li
     <button role="tab" data-tab="calibrar">2 · Calibrar</button>
     <button role="tab" data-tab="analizar">3 · Analizar</button>
     <button role="tab" data-tab="resultados">4 · Resultados</button>
+    <button role="tab" data-tab="var">VAR</button>
     <button role="tab" data-tab="detecta">Cómo detecta</button>
   </nav>
 </header>
@@ -188,22 +231,89 @@ iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--li
 <!-- ============================================================ FUENTE -->
 <section id="tab-fuente" role="tabpanel" hidden>
   <h1>Fuente de video</h1>
-  <p class="lead">Un archivo de video del partido, una capturadora HDMI conectada a la salida de tu decodificador o consola,
-  una cámara, la pantalla del PC o una URL de red. La app solo lee lo que tu equipo puede reproducir: no evita protecciones de contenido.</p>
-  <div class="card">
-    <label class="campo">Archivo o dispositivo
-      <div class="fila"><input type="text" id="spec" placeholder="C:\videos\partido.mp4  ·  disp:0  ·  pantalla  ·  rtsp://…" style="flex:1;min-width:240px">
-      <button class="btn pri" id="abrir">Abrir</button></div></label>
-    <div class="fila" style="margin-top:10px">
-      <span class="nota">Atajos:</span>
-      <button class="btn chico" data-spec="disp:0">Capturadora / cámara 0</button>
-      <button class="btn chico" data-spec="disp:1">Dispositivo 1</button>
-      <button class="btn chico" data-spec="pantalla">Pantalla completa</button>
-    </div>
-    <div id="fuente-msg" class="msg" hidden></div>
+  <p class="lead">De dónde viene el partido: un video que ya tienes, la página web donde lo estás viendo en vivo, o el televisor a través
+  de una capturadora HDMI. La app solo lee lo que tu equipo puede reproducir: no evita protecciones de contenido (HDCP / DRM).</p>
+  <div class="tipos" role="tablist" aria-label="Tipo de fuente">
+    <button class="tipo" role="tab" data-tipo="subir" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4m0 0-4 4m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <b>Subir un video</b><span>Archivo del partido o una grabación</span></button>
+    <button class="tipo" role="tab" data-tipo="pantalla" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/><path d="m10 8 4 2-4 2z" fill="currentColor"/></svg>
+      <b>Pantalla del PC</b><span>La página con el partido en vivo</span></button>
+    <button class="tipo" role="tab" data-tipo="tele" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="13" rx="1.5"/><path d="m8 2 4 4 4-4"/></svg>
+      <b>Televisor</b><span>Capturadora HDMI o cámara</span></button>
+    <button class="tipo" role="tab" data-tipo="ruta" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+      <b>Ruta o URL</b><span>Archivo del disco o stream de red</span></button>
   </div>
-  <div class="grid2">
-    <div class="card"><h2>Vista previa</h2><div id="fuente-vista" class="vacio">Abre una fuente para ver el primer cuadro.</div></div>
+
+  <!-- subir -->
+  <div class="card" data-panel="subir">
+    <label class="soltar" id="soltar" for="archivo">
+      <input type="file" id="archivo" accept="video/*,.mkv,.ts,.mts,.flv,.wmv">
+      <b>Arrastra aquí el video del partido</b>o haz clic para elegirlo · mp4, mkv, mov, avi, webm
+    </label>
+    <div id="subida" hidden style="margin-top:12px">
+      <div class="fila" style="justify-content:space-between"><span id="subida-nom" class="mono" style="overflow-wrap:anywhere"></span>
+        <button class="btn chico" id="subida-cancelar">Cancelar</button></div>
+      <div class="barra" aria-hidden="true"><i id="subida-barra"></i></div>
+      <p class="nota" id="subida-txt" style="margin:6px 0 0"></p>
+    </div>
+    <div id="subir-msg" class="msg" hidden></div>
+    <div class="fila" style="justify-content:space-between;margin-top:16px"><h2 style="margin:0">Videos del proyecto</h2>
+      <button class="btn chico" id="videos-recargar">Actualizar</button></div>
+    <ul class="videos" id="videos"><li class="nota">Todavía no hay videos. Los que subas y las grabaciones en vivo aparecen aquí.</li></ul>
+  </div>
+
+  <!-- pantalla -->
+  <div class="card" data-panel="pantalla" hidden>
+    <h2>Capturar la página donde ves el partido</h2>
+    <ol class="pasos">
+      <li>Abre el partido en el navegador (o la app) y deja el reproductor grande y visible. Con dos monitores, ponlo en el otro.</li>
+      <li>Toma una foto de esa pantalla y marca el reproductor arrastrando un rectángulo (o pulsa <b>Detectar el reproductor</b>).</li>
+      <li>Usa esa zona: la app la captura unas 25 veces por segundo mientras analiza.</li>
+    </ol>
+    <div class="fila" style="margin-top:12px">
+      <label class="campo">Monitor<select id="pan-monitor"><option value="1">Monitor 1</option></select></label>
+      <label class="campo">Esperar antes de la foto<select id="pan-espera"><option value="0">nada</option><option value="5">5 s (un solo monitor)</option><option value="10">10 s</option></select></label>
+      <button class="btn" id="pan-foto" style="margin-top:18px">Tomar foto de la pantalla</button>
+      <button class="btn" id="pan-detectar" style="margin-top:18px">Detectar el reproductor</button>
+    </div>
+    <div id="pan-msg" class="msg" hidden></div>
+    <div class="marco elegir" id="pan-marco" style="margin-top:12px" hidden><img id="pan-img" alt="Foto de la pantalla" draggable="false"><div class="sel-zona" id="pan-sel" hidden></div></div>
+    <div class="fila" style="margin-top:10px;justify-content:space-between">
+      <span class="nota" id="pan-zona-txt">Arrastra sobre la foto para marcar el reproductor.</span>
+      <div class="fila"><button class="btn" id="pan-todo" disabled>Usar toda la pantalla</button><button class="btn pri" id="pan-usar" disabled>Usar esta zona</button></div>
+    </div>
+  </div>
+
+  <!-- televisor -->
+  <div class="card" data-panel="tele" hidden>
+    <h2>Televisor, decodificador o consola</h2>
+    <ol class="pasos">
+      <li>Conecta la salida HDMI del decodificador, TV box o consola a una <b>capturadora HDMI-USB</b> (las básicas cuestan entre 15 y 30 dólares) y la capturadora al PC.</li>
+      <li>Para seguir viendo en la TV, usa un divisor HDMI: una salida al televisor y otra a la capturadora.</li>
+      <li>La capturadora aparece como una cámara: elígela abajo.</li>
+    </ol>
+    <div class="fila" style="margin-top:12px"><button class="btn pri" id="disp-buscar">Buscar capturadoras y cámaras</button>
+      <span class="nota" id="disp-estado"></span></div>
+    <div class="disp-grid" id="disp-lista"></div>
+  </div>
+
+  <!-- ruta / url -->
+  <div class="card" data-panel="ruta" hidden>
+    <label class="campo">Ruta del archivo, dispositivo o URL
+      <div class="fila"><input type="text" id="spec" placeholder="C:\videos\partido.mp4  ·  disp:0  ·  pantalla:1:0,0,1280,720  ·  rtsp://…" style="flex:1;min-width:240px">
+      <button class="btn pri" id="abrir">Abrir</button></div></label>
+    <p class="nota" style="margin:8px 0 0">Una ruta del disco del PC donde corre el panel (sin copiar el archivo), <span class="mono">disp:N</span> para la capturadora N,
+      <span class="mono">pantalla:M:x,y,ancho,alto</span> para una zona del monitor M, o un stream <span class="mono">rtsp://</span> / <span class="mono">http(s)://…m3u8</span>.</p>
+  </div>
+  <div id="fuente-msg" class="msg" hidden></div>
+
+  <div class="grid2" style="margin-top:16px">
+    <div class="card"><div class="fila" style="justify-content:space-between"><h2 style="margin:0">Vista previa</h2><span class="nota" id="vista-vivo" hidden><span class="en-vivo">en vivo</span></span></div>
+      <div id="fuente-vista" class="vacio" style="margin-top:10px">Elige una fuente para ver la imagen.</div></div>
     <div class="card"><h2>Detalles</h2><dl class="datos" id="fuente-info"><div><dt>Fuente</dt><dd>–</dd></div></dl>
       <p class="nota" style="margin-top:12px">Siguiente paso: calibrar la cancha con 4 o más puntos que se vean en la imagen.</p>
       <button class="btn pri" data-ir="calibrar" id="ir-calibrar" disabled>Calibrar →</button></div>
@@ -220,6 +330,10 @@ iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--li
       <div class="fila" id="cal-tiempo-fila" style="margin-bottom:10px">
         <span class="nota">Cuadro</span><input type="range" id="cal-t" min="0" max="10" step="0.04" value="0">
         <span class="mono" id="cal-t-txt">0:00</span>
+      </div>
+      <div class="fila" id="cal-vivo-fila" style="margin-bottom:10px" hidden>
+        <span class="nota" style="flex:1;min-width:200px">En vivo la imagen queda congelada para calibrar. Elige una toma amplia de la cámara principal.</span>
+        <button class="btn chico" id="cal-congelar">Congelar otro cuadro</button>
       </div>
       <div class="marco" id="cal-marco"><img id="cal-img" alt="Cuadro para calibrar"><canvas id="cal-canvas"></canvas></div>
       <p class="nota" id="cal-ayuda" style="margin:8px 0 0">1) Haz clic en un punto de la imagen.</p>
@@ -271,6 +385,13 @@ iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--li
           <label class="campo" style="flex:1">Procesar 1 de cada<select id="paso"><option value="1">1 cuadro</option><option value="2">2 cuadros</option><option value="3">3 cuadros</option></select></label>
           <label class="campo" style="flex:1">Título<input type="text" id="titulo" placeholder="Análisis del partido"></label>
         </div>
+        <div id="an-vivo" hidden style="margin-top:10px">
+          <div class="fila">
+            <label class="campo" style="flex:1">Analizar en vivo<select id="fps-vivo"><option value="5">5 cuadros/s</option><option value="10" selected>10 cuadros/s</option><option value="15">15 cuadros/s</option></select></label>
+          </div>
+          <label class="fila nota" style="gap:6px;margin-top:8px"><input type="checkbox" id="grabar-senal" checked> Grabar la señal mientras se analiza (queda en Videos del proyecto para revisarla o volver a analizarla)</label>
+          <p class="nota" style="margin:6px 0 0">En vivo el análisis sigue hasta que pulses Detener. Si el PC no alcanza ese ritmo, se saltan cuadros sin acumular retraso.</p>
+        </div>
         <div class="fila" style="margin-top:14px">
           <button class="btn pri" id="an-iniciar" style="flex:1">Analizar</button>
           <button class="btn" id="an-detener" disabled>Detener</button>
@@ -300,6 +421,66 @@ iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--li
     <div class="card"><div class="fila" style="justify-content:space-between"><h2 style="margin:0">Reporte</h2>
       <a class="btn chico" href="/resultados/reporte.html" target="_blank" rel="noopener">Abrir en pestaña nueva ↗</a></div>
       <iframe class="reporte" id="res-iframe" title="Reporte del análisis" style="margin-top:12px"></iframe></div>
+  </div>
+</section>
+
+<!-- ============================================================ VAR -->
+<section id="tab-var" role="tabpanel" hidden>
+  <h1>VAR</h1>
+  <p class="lead">Las jugadas que revisaría un VAR: fuera de lugar en cada pase y en cada remate (rebotes e interferencia con el arquero),
+  la línea de gol y la jugada previa de cada gol, balones que salieron sin que se detuviera el juego, y faltas junto al área. Cada
+  jugada trae su repetición sobre el video y la reconstrucción en 2D. Si el margen cae dentro del error de medición, sale como dudosa.</p>
+  <div id="var-vacio" class="card nota">Cuando termine un análisis verás aquí las jugadas revisadas.</div>
+  <div id="var-cont" hidden>
+    <div class="kpis" id="var-kpis" style="margin-bottom:16px"></div>
+    <div class="var-grid">
+      <div class="card">
+        <div class="fila" style="justify-content:space-between;margin-bottom:10px">
+          <h2 style="margin:0" id="var-tit">Jugada</h2>
+          <div class="seg" role="group" aria-label="Vista de la jugada" id="var-vistas">
+            <button aria-pressed="true" data-v="video">Video</button><button aria-pressed="false" data-v="2d">Reconstrucción 2D</button>
+          </div>
+        </div>
+        <div id="var-foto" class="var-foto"></div>
+        <div id="var-visor"></div>
+      </div>
+      <div>
+        <div class="fila" role="group" aria-label="Filtrar jugadas" id="var-filtros" style="margin-bottom:8px">
+          <button class="btn chico" data-f="todo" aria-pressed="true">Todas</button>
+          <button class="btn chico" data-f="fuera" aria-pressed="false">Fuera de lugar</button>
+          <button class="btn chico" data-f="goles" aria-pressed="false">Goles</button>
+          <button class="btn chico" data-f="faltas" aria-pressed="false">Faltas</button>
+          <button class="btn chico" data-f="otras" aria-pressed="false">Balón fuera</button>
+        </div>
+        <ul class="var-lista" id="var-lista"></ul>
+      </div>
+    </div>
+    <div class="card" id="vm">
+      <div class="fila" style="justify-content:space-between">
+        <h2 style="margin:0">Revisión manual, cuadro a cuadro</h2>
+        <div class="seg" role="group" aria-label="Qué revisar" id="vm-modo">
+          <button aria-pressed="true" data-m="fuera">Fuera de lugar</button><button aria-pressed="false" data-m="falta">Falta o mano</button>
+        </div>
+      </div>
+      <p class="nota" id="vm-ayuda" style="margin:6px 0 10px">Como el operador del VAR: busca el cuadro exacto en que sale el pase (o el remate) y elige qué equipo ataca. La app traza la línea del penúltimo defensor y mide a cada atacante.</p>
+      <div class="grid-cal">
+        <div>
+          <div class="marco" id="vm-marco"><img id="vm-img" alt="Cuadro del video para revisar" draggable="false"><canvas id="vm-canvas"></canvas></div>
+          <div class="fila" style="margin-top:8px">
+            <button class="btn chico" id="vm-atras" aria-label="Cuadro anterior" title="Cuadro anterior (,)">◀ 1 cuadro</button>
+            <input type="range" id="vm-t" min="0" max="10" step="0.04" value="0" aria-label="Instante">
+            <button class="btn chico" id="vm-adel" aria-label="Cuadro siguiente" title="Cuadro siguiente (.)">1 cuadro ▶</button>
+            <span class="mono" id="vm-t-txt">0:00.00</span>
+          </div>
+        </div>
+        <div>
+          <label class="campo" id="vm-eq-l">Ataca<select id="vm-eq"><option value="A">Equipo A</option><option value="B">Equipo B</option></select></label>
+          <p class="nota" id="vm-falta-ayuda" hidden style="margin:10px 0 0">Haz clic en la imagen donde fue la falta (el pie del que la recibe) y elige a qué equipo se la cometieron.</p>
+          <button class="btn pri" id="vm-ir" style="margin-top:12px;width:100%">Trazar las líneas</button>
+          <div id="vm-msg" class="msg" hidden></div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -333,6 +514,7 @@ iframe.reporte{width:100%;height:78vh;min-height:520px;border:1px solid var(--li
 </main>
 <div id="lupa" hidden><img id="lupa-img" alt="Imagen ampliada"></div>
 
+<script src="/activos/repeticion.js"></script>
 <script>
 (() => {
 const $ = s => document.querySelector(s);
@@ -359,6 +541,7 @@ function irA(tab) {
   if (history.replaceState) history.replaceState(null, '', '#' + tab);
   if (tab === 'calibrar') cargarCalibrar();
   if (tab === 'resultados') cargarResultados();
+  if (tab === 'var') cargarVar();
   if (tab === 'datos' && !S.comps.length) cargarCompeticiones();
   if (tab === 'detecta' && !X.etapas.length) ultimaExplicacion();
 }
@@ -368,7 +551,8 @@ $$('[data-ir]').forEach(b => b.onclick = () => irA(b.dataset.ir));
 function pill() {
   const p = $('#estado-pill');
   if (!S.fuente) { p.textContent = 'sin fuente'; p.className = 'pill'; return; }
-  p.textContent = S.fuente.tipo === 'archivo' ? 'archivo listo' : 'en vivo'; p.className = 'pill ok';
+  p.textContent = S.fuente.tipo === 'archivo' ? 'archivo listo' : ({pantalla:'pantalla en vivo', capturadora:'capturadora en vivo', red:'stream en vivo'}[S.fuente.subtipo] || 'en vivo');
+  p.className = 'pill ok';
 }
 
 // ============================================================ DATOS
@@ -478,27 +662,200 @@ async function cargarReportes() {
 }
 
 // ============================================================ FUENTE
+const SUBTIPO = {pantalla:'pantalla del PC', capturadora:'capturadora / cámara', red:'stream de red'};
+function tipoFuente(t) {
+  $$('.tipo').forEach(b => b.setAttribute('aria-selected', b.dataset.tipo === t));
+  $$('[data-panel]').forEach(p => p.hidden = p.dataset.panel !== t);
+  try { localStorage.setItem('analista.tipoFuente', t); } catch (_) {}
+  if (t === 'subir') cargarVideos();
+  if (t === 'pantalla' && !P.monitores) cargarMonitores();
+  if (t === 'tele' && !S.buscado) buscarDispositivos();
+}
+$$('.tipo').forEach(b => b.onclick = () => tipoFuente(b.dataset.tipo));
+
 async function abrirFuente(spec) {
   $('#spec').value = spec;
   msg($('#fuente-msg'), 'Abriendo…', 'warn');
   try {
     const d = await api('/api/fuente', {spec});
     S.fuente = d; pill();
-    msg($('#fuente-msg'), d.negro ? 'La imagen está negra: si es una capturadora, revisa que el decodificador no bloquee la salida (HDCP).' : 'Fuente lista.', d.negro ? 'warn' : 'ok');
-    $('#fuente-vista').outerHTML = `<div class="marco" id="fuente-vista"><img src="/api/cuadro.jpg?t=0&v=${Date.now()}" alt="Primer cuadro"></div>`;
-    const filas = [['Fuente', d.spec], ['Tipo', d.tipo === 'archivo' ? 'archivo de video' : 'en vivo'], ['Resolución', `${d.ancho_nativo} × ${d.alto_nativo} px`]];
+    msg($('#fuente-msg'), d.negro ? 'La imagen está negra: si viene de un decodificador o de un servicio de streaming, la señal está protegida (HDCP / DRM) y no se puede capturar.' : 'Fuente lista.', d.negro ? 'warn' : 'ok');
+    $('#fuente-vista').outerHTML = `<div class="marco" id="fuente-vista" style="margin-top:10px"><img id="vista-img" src="/api/cuadro.jpg?t=0&v=${Date.now()}" alt="Imagen de la fuente"></div>`;
+    const vivo = d.tipo !== 'archivo';
+    const filas = [['Fuente', d.spec], ['Tipo', vivo ? `en vivo · ${SUBTIPO[d.subtipo] || ''}` : 'archivo de video'], ['Resolución', `${d.ancho_nativo} × ${d.alto_nativo} px`]];
     if (d.duracion) filas.push(['Duración', `${fmtT(d.duracion)} · ${num(d.fps, 0)} cuadros/s`]);
     $('#fuente-info').innerHTML = filas.map(([a, b]) => `<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join('');
     $('#ir-calibrar').disabled = false;
     for (const id of ['#cal-t', '#ex-t']) { $(id).max = d.duracion ? Math.max(0, d.duracion - 0.1).toFixed(2) : 0; }
-    $('#cal-tiempo-fila').hidden = d.tipo !== 'archivo';
+    modoFuente();
+    S.calCargada = false; S.pares = []; $('#cal-img').removeAttribute('src');
     // Resolución sugerida: con cámara fija y video grande conviene 1920 (jugadores pequeños)
     if (d.ancho_nativo >= 1600 && $('#fija').checked) $('#res').value = '1920';
+    pintarVideos();
   } catch (e) { msg($('#fuente-msg'), e.message, 'err'); }
 }
+function modoFuente() {
+  const vivo = !!S.fuente && S.fuente.tipo !== 'archivo';
+  $('#cal-tiempo-fila').hidden = vivo || !S.fuente;
+  $('#cal-vivo-fila').hidden = !vivo;
+  $('#an-vivo').hidden = !vivo;
+  $('#paso').closest('label').hidden = vivo;
+  // en vivo conviene ir rápido: 960 px (se puede cambiar)
+  if (vivo && !S.resElegida) $('#res').value = '960';
+  if (!vivo && !S.resElegida && S.fuente) $('#res').value = '1280';
+  $('#vista-vivo').hidden = !vivo;
+}
+// Vista previa en vivo: un cuadro nuevo cada segundo mientras se ve la pestaña
+setInterval(() => {
+  const im = $('#vista-img');
+  if (!im || !S.fuente || S.fuente.tipo === 'archivo' || $('#tab-fuente').hidden || document.hidden || S.vistaCargando) return;
+  S.vistaCargando = true;
+  const nuevo = new Image();
+  nuevo.onload = () => { im.src = nuevo.src; S.vistaCargando = false; };
+  nuevo.onerror = () => { S.vistaCargando = false; };
+  nuevo.src = `/api/cuadro.jpg?v=${Date.now()}`;
+}, 1000);
 $('#abrir').onclick = () => abrirFuente($('#spec').value);
 $('#spec').onkeydown = e => { if (e.key === 'Enter') abrirFuente($('#spec').value); };
-$$('[data-spec]').forEach(b => b.onclick = () => abrirFuente(b.dataset.spec));
+
+// ------------------------------------------------------------ subir un video
+async function cargarVideos() {
+  try { S.videos = (await api('/api/videos')).videos; pintarVideos(); } catch (_) {}
+}
+function pintarVideos() {
+  const l = S.videos || [];
+  $('#videos').innerHTML = l.length ? l.map((v, k) => {
+    const usado = S.fuente && S.fuente.spec === v.ruta;
+    const vivo = v.nombre.startsWith('en_vivo_');
+    return `<li><span class="nom" title="${esc(v.ruta)}">${vivo ? '<span class="chip">grabación en vivo</span> ' : ''}${esc(v.nombre)}</span>
+      <span class="nota">${v.duracion ? fmtT(v.duracion) + ' · ' : ''}${num(v.mb, 1)} MB</span>
+      ${usado ? '<span class="chip ok">en uso</span>' : `<button class="btn chico pri" data-video="${k}">Usar</button>`}</li>`;
+  }).join('') : '<li class="nota">Todavía no hay videos. Los que subas y las grabaciones en vivo aparecen aquí.</li>';
+  $$('#videos [data-video]').forEach(b => b.onclick = () => abrirFuente(S.videos[+b.dataset.video].ruta));
+}
+$('#videos-recargar').onclick = cargarVideos;
+let xhrSubida = null;
+function subir(archivo) {
+  if (!archivo) return;
+  msg($('#subir-msg'), '');
+  $('#subida').hidden = false; $('#subida-nom').textContent = archivo.name; $('#subida-barra').style.width = '0';
+  const fd = new FormData(); fd.append('video', archivo);
+  const x = xhrSubida = new XMLHttpRequest(), t0 = Date.now();
+  x.open('POST', '/api/subir');
+  x.upload.onprogress = e => {
+    if (!e.lengthComputable) return;
+    const pct = 100 * e.loaded / e.total, s = (Date.now() - t0) / 1000;
+    $('#subida-barra').style.width = pct.toFixed(1) + '%';
+    $('#subida-txt').textContent = `${pct.toFixed(0)} % · ${num(e.loaded / 1e6, 0)} de ${num(e.total / 1e6, 0)} MB${s > 1 ? ` · ${num(e.loaded / 1e6 / s, 1)} MB/s` : ''}`;
+  };
+  x.upload.onload = () => { $('#subida-txt').textContent = 'Revisando el video…'; };
+  x.onload = async () => {
+    xhrSubida = null; $('#subida').hidden = true; $('#archivo').value = '';
+    let d = null; try { d = JSON.parse(x.responseText); } catch (_) {}
+    if (x.status !== 200 || !d || !d.ok) { msg($('#subir-msg'), (d && d.error) || `No se pudo subir (error ${x.status})`, 'err'); return; }
+    msg($('#subir-msg'), `Subido: ${d.nombre}`, 'ok');
+    await cargarVideos();
+    abrirFuente(d.ruta);
+  };
+  x.onerror = () => { xhrSubida = null; $('#subida').hidden = true; msg($('#subir-msg'), 'Se cortó la conexión con el panel durante la subida.', 'err'); };
+  x.onabort = () => { xhrSubida = null; $('#subida').hidden = true; $('#archivo').value = ''; msg($('#subir-msg'), 'Subida cancelada.', 'warn'); };
+  x.send(fd);
+}
+$('#archivo').onchange = e => subir(e.target.files[0]);
+$('#subida-cancelar').onclick = () => { if (xhrSubida) xhrSubida.abort(); };
+const zona = $('#soltar');
+['dragenter', 'dragover'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.add('encima'); }));
+['dragleave', 'drop'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.remove('encima'); }));
+zona.addEventListener('drop', e => subir(e.dataTransfer.files[0]));
+
+// ------------------------------------------------------------ pantalla del PC
+const P = {monitores:null, sel:null, arrastre:null};
+const monitor = () => (P.monitores || []).find(m => m.indice === +$('#pan-monitor').value);
+async function cargarMonitores() {
+  try {
+    const d = await api('/api/pantallas');
+    P.monitores = d.pantallas;
+    if (!d.pantallas.length) { msg($('#pan-msg'), d.error || 'No se encontró ninguna pantalla para capturar.', 'err'); return; }
+    $('#pan-monitor').innerHTML = d.pantallas.map(m => `<option value="${m.indice}">Monitor ${m.indice} · ${m.ancho} × ${m.alto}</option>`).join('');
+    $('#pan-todo').disabled = false;
+    fotoPantalla();
+  } catch (e) { msg($('#pan-msg'), e.message, 'err'); }
+}
+async function cuentaAtras(seg, txt) {
+  for (let k = seg; k > 0; k--) { msg($('#pan-msg'), `${txt} en ${k} s: pasa a la ventana del partido.`, 'warn'); await new Promise(r => setTimeout(r, 1000)); }
+}
+async function fotoPantalla() {
+  const m = monitor(); if (!m) return;
+  const espera = +$('#pan-espera').value;
+  const url = `/api/pantalla.jpg?monitor=${m.indice}&espera=${espera}&v=${Date.now()}`;
+  if (espera) cuentaAtras(espera, 'Foto'); else msg($('#pan-msg'), 'Tomando la foto…', 'warn');
+  const im = $('#pan-img');
+  await new Promise(res => { im.onload = res; im.onerror = res; im.src = url; });
+  if (!im.naturalWidth) { msg($('#pan-msg'), 'No se pudo capturar la pantalla.', 'err'); return; }
+  msg($('#pan-msg'), ''); $('#pan-marco').hidden = false; pintarSel();
+}
+$('#pan-foto').onclick = fotoPantalla;
+$('#pan-monitor').onchange = () => { P.sel = null; fotoPantalla(); };
+$('#pan-detectar').onclick = async () => {
+  const m = monitor(); if (!m) return;
+  const espera = +$('#pan-espera').value;
+  if (espera) cuentaAtras(espera, 'Busco el reproductor'); else msg($('#pan-msg'), 'Buscando la zona que se mueve…', 'warn');
+  try {
+    const z = await api(`/api/pantalla/sugerir?monitor=${m.indice}&espera=${espera}`);
+    if (espera || $('#pan-marco').hidden) await fotoPantalla();
+    P.sel = {x:z.x, y:z.y, w:z.ancho, h:z.alto}; pintarSel();
+    msg($('#pan-msg'), `Reproductor encontrado (por ${z.metodo}). Ajusta el rectángulo si hace falta.`, 'ok');
+  } catch (e) { msg($('#pan-msg'), e.message, 'err'); }
+};
+function pintarSel() {
+  const r = $('#pan-sel'), im = $('#pan-img'), m = monitor();
+  $('#pan-usar').disabled = !P.sel;
+  if (!P.sel || !m || !im.naturalWidth) { r.hidden = true; $('#pan-zona-txt').textContent = 'Arrastra sobre la foto para marcar el reproductor.'; return; }
+  const k = im.clientWidth / m.ancho;
+  Object.assign(r.style, {left:P.sel.x * k + 'px', top:P.sel.y * k + 'px', width:P.sel.w * k + 'px', height:P.sel.h * k + 'px'}); r.hidden = false;
+  $('#pan-zona-txt').innerHTML = `Zona: <span class="mono">${P.sel.w} × ${P.sel.h} px desde (${P.sel.x}, ${P.sel.y})</span>`;
+}
+window.addEventListener('resize', pintarSel);
+function puntoPantalla(ev) {
+  const im = $('#pan-img'), r = im.getBoundingClientRect(), m = monitor();
+  return [Math.max(0, Math.min(m.ancho, Math.round((ev.clientX - r.left) * m.ancho / r.width))),
+          Math.max(0, Math.min(m.alto, Math.round((ev.clientY - r.top) * m.alto / r.height)))];
+}
+$('#pan-marco').addEventListener('pointerdown', ev => {
+  if (!monitor() || !$('#pan-img').naturalWidth) return;
+  ev.preventDefault(); $('#pan-marco').setPointerCapture(ev.pointerId);
+  P.arrastre = puntoPantalla(ev);
+});
+$('#pan-marco').addEventListener('pointermove', ev => {
+  if (!P.arrastre) return;
+  const [x0, y0] = P.arrastre, [x1, y1] = puntoPantalla(ev);
+  P.sel = {x:Math.min(x0, x1), y:Math.min(y0, y1), w:Math.abs(x1 - x0), h:Math.abs(y1 - y0)}; pintarSel();
+});
+$('#pan-marco').addEventListener('pointerup', () => {
+  P.arrastre = null;
+  if (P.sel && (P.sel.w < 32 || P.sel.h < 32)) { P.sel = null; pintarSel(); }
+});
+$('#pan-usar').onclick = () => { const m = monitor(); if (m && P.sel) abrirFuente(`pantalla:${m.indice}:${P.sel.x},${P.sel.y},${P.sel.w},${P.sel.h}`); };
+$('#pan-todo').onclick = () => { const m = monitor(); if (m) abrirFuente(`pantalla:${m.indice}`); };
+
+// ------------------------------------------------------------ capturadora / televisor
+async function buscarDispositivos() {
+  S.buscado = true;
+  $('#disp-estado').innerHTML = '<span class="spin"></span>Buscando…'; $('#disp-buscar').disabled = true;
+  try {
+    const d = await api('/api/dispositivos');
+    const l = d.dispositivos;
+    $('#disp-estado').textContent = l.length ? `${l.length} encontrado${l.length > 1 ? 's' : ''}` : '';
+    $('#disp-lista').innerHTML = l.length ? l.map(x => `<div class="disp"><img src="/api/dispositivo.jpg?i=${x.indice}&v=${Date.now()}" alt="Imagen de ${esc(x.nombre)}">
+      <div class="cuerpo"><b>${esc(x.nombre)}</b><span class="nota">disp:${x.indice} · ${x.ancho} × ${x.alto}</span>
+      ${x.negro ? '<span class="msg warn" style="margin:0">Imagen negra: sin señal o protegida (HDCP).</span>' : ''}
+      <button class="btn pri" data-disp="${x.indice}" style="margin-top:auto">Usar</button></div></div>`).join('')
+      : `<div class="msg warn" style="grid-column:1/-1">${esc(d.error || 'No encontré capturadoras ni cámaras. Revisa el cable USB, que la capturadora no la esté usando otro programa (OBS, Zoom) y vuelve a buscar.')}</div>`;
+    $$('#disp-lista [data-disp]').forEach(b => b.onclick = () => abrirFuente('disp:' + b.dataset.disp));
+  } catch (e) { $('#disp-estado').textContent = e.message; }
+  $('#disp-buscar').disabled = false;
+}
+$('#disp-buscar').onclick = buscarDispositivos;
 
 // ============================================================ CALIBRAR
 const NS = 'http://www.w3.org/2000/svg';
@@ -531,8 +888,10 @@ async function cargarCalibrar() {
 }
 function cuadroCal() {
   const t = +$('#cal-t').value; $('#cal-t-txt').textContent = fmtT(t);
-  $('#cal-img').src = `/api/cuadro.jpg?t=${t}&v=${Date.now()}`;
+  // En vivo, cal=1 deja este cuadro congelado en el servidor: es el que se guarda con la calibración
+  $('#cal-img').src = S.fuente && S.fuente.tipo !== 'archivo' ? `/api/cuadro.jpg?cal=1&v=${Date.now()}` : `/api/cuadro.jpg?t=${t}&v=${Date.now()}`;
 }
+$('#cal-congelar').onclick = cuadroCal;
 $('#cal-t').oninput = () => { $('#cal-t-txt').textContent = fmtT(+$('#cal-t').value); };
 $('#cal-t').onchange = cuadroCal;
 $('#largo').onchange = $('#ancho').onchange = () => { S.cancha = null; cargarCalibrar().then(previsualizar); };
@@ -610,11 +969,13 @@ $('#cal-guardar').onclick = async () => {
 };
 
 // ============================================================ ANALIZAR
+$('#res').addEventListener('change', () => { S.resElegida = true; });
 function opciones() {
   const eq = [];
   for (const k of ['a', 'b']) { const n = $('#eq-' + k).value.trim(); eq.push({nombre:n || null, color:n ? $('#col-' + k).value : null}); }
   return {equipos:eq, detector:$('#det').value, ancho_proceso:+$('#res').value, imgsz:Math.min(+$('#res').value, 1920),
-          paso:+$('#paso').value, titulo:$('#titulo').value.trim() || null};
+          paso:S.fuente && S.fuente.tipo !== 'archivo' ? 1 : +$('#paso').value, titulo:$('#titulo').value.trim() || null,
+          fps_vivo:+$('#fps-vivo').value, grabar_senal:$('#grabar-senal').checked};
 }
 $('#an-iniciar').onclick = async () => {
   try { await api('/api/analizar', opciones()); msg($('#an-msg'), ''); $('#an-iniciar').disabled = true; $('#an-detener').disabled = false; seguir(); }
@@ -637,13 +998,19 @@ async function seguir() {
   $('#k-vis').innerHTML = d.visibles ? vs(d.visibles.A, d.visibles.B) : '–';
   $('#k-pos').innerHTML = d.posesion ? vs(d.posesion.A + '%', d.posesion.B + '%') : '–';
   $('#an-barra').style.width = d.total ? Math.min(100, 100 * d.n / d.total) + '%' : (d.estado === 'listo' ? '100%' : '0');
-  const est = {corriendo:`Analizando… minuto ${fmtT(d.t_video || 0)} del video${d.calibrado === false ? ' · cámara sin calibrar en este cuadro' : ''}`,
+  const sinCal = d.calibrado === false ? ' · cámara sin calibrar en este cuadro' : '';
+  const est = {corriendo:d.vivo ? `En vivo · ${fmtT(d.t_video || 0)} analizados${d.grabacion ? ` · grabando ${d.grabacion}` : ''}${sinCal}`
+                                : `Analizando… minuto ${fmtT(d.t_video || 0)} del video${sinCal}`,
                'calculando métricas':'Calculando métricas y armando el reporte…', listo:`Listo en ${num(d.segundos, 0)} s. Mira la pestaña Resultados.`,
                error:'Error: ' + (d.error || ''), inactivo:'Listo para empezar.'};
   $('#an-estado').textContent = est[d.estado] || d.estado;
   if (d.estado === 'corriendo' || d.estado === 'calculando métricas') { tSeguir = setTimeout(seguir, 350); return; }
   $('#an-iniciar').disabled = false; $('#an-detener').disabled = true;
-  if (d.estado === 'listo') { msg($('#an-msg'), 'Análisis terminado.', 'ok'); S.resultados = d; delete $('#res-video').dataset.cargado; }
+  if (d.estado === 'listo') {
+    msg($('#an-msg'), `Análisis terminado.${d.grabacion ? ` La señal quedó grabada en Videos del proyecto (${d.grabacion}).` : ''}`, 'ok');
+    S.resultados = d; delete $('#res-video').dataset.cargado; if (d.grabacion) cargarVideos();
+    if (V.actual) { V.actual.destruir(); V.actual = null; }
+  }
   if (d.estado === 'error') msg($('#an-msg'), d.error, 'err');
 }
 
@@ -673,6 +1040,119 @@ async function cargarResultados() {
   $('#res-kpis').innerHTML = k.map(([e, val]) => `<div class="kpi"><div class="et">${e}</div><div class="v vs">${val}</div></div>`).join('');
   $('#res-archivos').innerHTML = (guardado.archivos && guardado.archivos.length ? guardado.archivos : (d.archivos || [])).map(a => `<a class="btn chico" href="/resultados/${a}" download>${esc(a)}</a>`).join('');
 }
+
+// ============================================================ VAR
+const V = {items:[], filtro:'todo', actual:null, vista:'video', it:null, fps:25, modo:'fuera', punto:null};
+function vistaVar() {
+  const it = V.it; if (!it) return;
+  const hayVideo = !!(it.clip || it.foto);
+  const v = hayVideo ? V.vista : '2d';
+  $$('#var-vistas [data-v]').forEach(b => { b.setAttribute('aria-pressed', b.dataset.v === v); b.disabled = b.dataset.v === 'video' && !hayVideo; });
+  $('#var-foto').hidden = v !== 'video'; $('#var-visor').hidden = v !== '2d';
+  const vid = $('#var-foto video'); if (vid) { if (v === 'video') vid.play().catch(() => {}); else vid.pause(); }
+}
+function abrirVar(it, auto) {
+  if (V.actual) V.actual.destruir();
+  V.it = it;
+  $('#var-tit').innerHTML = `${it.titulo || 'Jugada'} <span class="ver-chip ${it.clase || ''}">${esc(it.veredicto || '')}</span>`;
+  V.actual = window.Repeticion ? Repeticion.montar($('#var-visor'), it.datos, {auto:!!auto, inicio:auto ? undefined : 'evento'}) : null;
+  $('#var-foto').innerHTML = it.clip ? `<video autoplay muted loop playsinline controls aria-label="Repetición VAR sobre el video">${it.clip_webm ? `<source src="${it.clip_webm}" type="video/webm">` : ''}<source src="${it.clip}" type="video/mp4"></video>
+      <p class="nota">Repetición sobre el video: cámara lenta, imagen congelada y las líneas trazadas en perspectiva sobre el césped.</p>`
+    : it.foto ? `<img src="${it.foto}?v=${Date.now()}" alt="Cuadro del video en el instante revisado, con las líneas del VAR"><p class="nota">${esc(it.texto || '')}</p>` : '';
+  vistaVar();
+}
+$$('#var-vistas [data-v]').forEach(b => b.onclick = () => { V.vista = b.dataset.v; vistaVar(); });
+function pintarVar() {
+  const l = $('#var-lista'); l.innerHTML = '';
+  V.items.forEach((it, i) => {
+    if (V.filtro !== 'todo' && it.grupo !== V.filtro) return;
+    const li = document.createElement('li');
+    li.innerHTML = `<button type="button" data-i="${i}"><span class="min">${it.min}</span><span class="tit">${it.titulo}<span class="ver-chip ${it.clase}">${it.veredicto}</span>${it.clip ? ' <span class="chip">video</span>' : ''}</span><span class="txt">${it.texto}</span></button>`;
+    li.firstChild.onclick = () => { $$('#var-lista button').forEach(b => b.setAttribute('aria-current', b === li.firstChild)); abrirVar(it, false); };
+    l.appendChild(li);
+  });
+  if (!l.children.length) l.innerHTML = '<li class="nota">Sin jugadas en este filtro.</li>';
+}
+$$('#var-filtros [data-f]').forEach(b => b.onclick = () => { V.filtro = b.dataset.f; $$('#var-filtros [data-f]').forEach(x => x.setAttribute('aria-pressed', x === b)); pintarVar(); });
+async function cargarVar() {
+  let d; try { d = await api('/api/var'); } catch (e) { return; }
+  const hay = d.resumen !== null && d.resumen !== undefined;
+  $('#var-vacio').hidden = hay; $('#var-cont').hidden = !hay;
+  if (!hay) return;
+  V.items = d.items || [];
+  V.fps = d.fps || 25;
+  const r = d.resumen;
+  $('#var-kpis').innerHTML = [['Pases revisados', r.pases_revisados, 'fuera de lugar en el instante del pase'],
+    ['Fuera de lugar', r.fuera_de_lugar, `${r.dudosos} dudoso(s) dentro del error`],
+    ['Remates revisados', r.tiros_revisados ?? 0, `${r.rebotes_fuera_de_lugar ?? 0} rebote(s) · ${r.interferencias ?? 0} interferencia(s)`],
+    ['Goles revisados', r.goles_revisados, 'línea de gol y jugada previa'],
+    ['Balones fuera', r.salidas_al_limite, 'salieron y se siguió jugando']]
+    .map(([e, v, n]) => `<div class="kpi"><div class="et">${e}</div><div class="v">${v}</div><div class="nota">${n}</div></div>`).join('');
+  $('#vm-eq').innerHTML = ['A', 'B'].map(k => `<option value="${k}">${esc((d.equipos || {})[k] || 'Equipo ' + k)}</option>`).join('');
+  if (d.duracion) { $('#vm-t').min = d.duracion[0]; $('#vm-t').max = d.duracion[1]; $('#vm-t').step = (1 / V.fps).toFixed(3); }
+  pintarVar();
+  if (V.items.length && !V.actual) {
+    const i = Math.max(0, V.items.findIndex(x => x.clip && (x.clase === 'mal' || x.clase === 'duda')));
+    $$('#var-lista button')[0] && $$('#var-lista button').forEach(b => b.setAttribute('aria-current', +b.dataset.i === i));
+    abrirVar(V.items[i], true);
+  }
+  if (!$('#vm-img').src) cuadroVm();
+}
+// ------------------------------------------------ revisión manual cuadro a cuadro
+const fmtTc = t => `${Math.floor(t / 60)}:${(t % 60).toFixed(2).padStart(5, '0').replace('.', ',')}`;
+let tVm = null;
+function cuadroVm() {
+  const t = +$('#vm-t').value; $('#vm-t-txt').textContent = fmtTc(t);
+  clearTimeout(tVm);
+  tVm = setTimeout(() => { $('#vm-img').src = `/api/var/cuadro.jpg?t=${t.toFixed(3)}&v=${Date.now()}`; }, 60);
+}
+$('#vm-img').onload = () => { const c = $('#vm-canvas'), im = $('#vm-img'); c.width = im.naturalWidth; c.height = im.naturalHeight; dibujarVm(); };
+function dibujarVm() {
+  const c = $('#vm-canvas'), x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
+  if (V.modo !== 'falta' || !V.punto) return;
+  const [u, v] = V.punto, r = Math.max(8, c.width / 90);
+  x.lineWidth = Math.max(2, c.width / 400); x.strokeStyle = '#fff'; x.fillStyle = 'rgba(242,165,22,.85)';
+  x.beginPath(); x.arc(u, v, r, 0, 7); x.fill(); x.stroke();
+  x.beginPath(); x.moveTo(u - 2.2 * r, v); x.lineTo(u + 2.2 * r, v); x.moveTo(u, v - 2.2 * r); x.lineTo(u, v + 2.2 * r); x.stroke();
+}
+$('#vm-t').oninput = cuadroVm;
+const pasoVm = k => { const e = $('#vm-t'); e.value = Math.min(+e.max, Math.max(+e.min, +e.value + k / V.fps)); cuadroVm(); };
+$('#vm-atras').onclick = () => pasoVm(-1);
+$('#vm-adel').onclick = () => pasoVm(1);
+document.addEventListener('keydown', k => {
+  if ($('#tab-var').hidden || k.target.closest('input[type=text],textarea,select')) return;
+  if (k.key === ',') pasoVm(-1); if (k.key === '.') pasoVm(1);
+});
+$$('#vm-modo [data-m]').forEach(b => b.onclick = () => {
+  V.modo = b.dataset.m; $$('#vm-modo [data-m]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  const falta = V.modo === 'falta';
+  $('#vm-falta-ayuda').hidden = !falta;
+  $('#vm-eq-l').firstChild.textContent = falta ? 'Falta a favor de' : 'Ataca';
+  $('#vm-ir').textContent = falta ? 'Revisar la falta' : 'Trazar las líneas';
+  $('#vm-ayuda').textContent = falta ? 'Marca el lugar exacto de la falta sobre el cuadro: la app dice si fue dentro o fuera del área (la línea es parte del área) y si cortó una ocasión manifiesta de gol (Ley 12).'
+    : 'Como el operador del VAR: busca el cuadro exacto en que sale el pase (o el remate) y elige qué equipo ataca. La app traza la línea del penúltimo defensor y mide a cada atacante.';
+  V.punto = null; dibujarVm();
+});
+$('#vm-canvas').addEventListener('click', ev => {
+  if (V.modo !== 'falta') return;
+  const c = $('#vm-canvas'), r = c.getBoundingClientRect();
+  if (!c.width) return;
+  V.punto = [(ev.clientX - r.left) * c.width / r.width, (ev.clientY - r.top) * c.height / r.height]; dibujarVm();
+});
+$('#vm-ir').onclick = async () => {
+  const t = +$('#vm-t').value, equipo = $('#vm-eq').value;
+  if (V.modo === 'falta' && !V.punto) { msg($('#vm-msg'), 'Primero haz clic en la imagen donde fue la falta.', 'warn'); return; }
+  msg($('#vm-msg'), 'Midiendo…', 'warn');
+  try {
+    const it = V.modo === 'falta'
+      ? await api('/api/var/falta', {t, equipo, u:V.punto[0], v:V.punto[1], ancho_imagen:$('#vm-canvas').width})
+      : await api('/api/var/instante', {t, equipo});
+    msg($('#vm-msg'), it.texto, it.clase === 'mal' ? 'err' : it.clase === 'duda' ? 'warn' : 'ok');
+    $$('#var-lista button').forEach(b => b.setAttribute('aria-current', false));
+    abrirVar(it, false);
+    $('#var-tit').scrollIntoView({behavior:'smooth', block:'start'});
+  } catch (e) { msg($('#vm-msg'), e.message, 'err'); }
+};
 
 // ============================================================ CÓMO DETECTA
 const X = {e:0, etapas:[]};
@@ -733,6 +1213,9 @@ document.addEventListener('keydown', k => {
     if (e.fuente) { S.fuente = e.fuente; pill(); $('#spec').value = e.fuente.spec; $('#ir-calibrar').disabled = false;
       for (const id of ['#cal-t', '#ex-t']) $(id).max = e.fuente.duracion ? Math.max(0, e.fuente.duracion - 0.1).toFixed(2) : 0; }
   } catch (_) {}
+  modoFuente();
+  let tf = 'subir'; try { tf = localStorage.getItem('analista.tipoFuente') || 'subir'; } catch (_) {}
+  tipoFuente(document.querySelector(`[data-panel="${tf}"]`) ? tf : 'subir');
   let tab = (location.hash || '').slice(1);
   if (!document.getElementById('tab-' + tab)) { try { tab = localStorage.getItem('analista.tab'); } catch (_) {} }
   irA(document.getElementById('tab-' + tab) ? tab : 'datos');

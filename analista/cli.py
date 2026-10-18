@@ -3,6 +3,11 @@
     analista panel                                    panel web local (recomendado)
     analista analizar partido.mp4 -c cal.json         procesar un video
     analista vivo disp:0 -c cal.json                  seguir un partido en vivo (capturadora HDMI)
+    analista vivo pantalla:1:0,80,1280,720 -c cal.json --grabar partido.mp4
+                                                      la página con el partido en vivo (zona de la pantalla)
+    analista fuentes --sugerir 1                      monitores, capturadoras y la zona del reproductor
+    analista var resultados/                          VAR: fuera de lugar, goles, balón fuera, faltas
+    analista var skillcorner:1886347                  VAR con tracking de SkillCorner (o statsbomb:ID con 360)
     analista calibrar partido.mp4 --puntos "…"        crear una calibración sin el panel
     analista verificar partido.mp4 -c cal.json        dibujar la cancha calibrada sobre un cuadro
     analista explicar partido.mp4 -c cal.json -t 20   página con las etapas de la detección
@@ -65,17 +70,90 @@ def cmd_analizar(a, vivo: bool = False):
     fuente = abrir_fuente(a.fuente, inicio_s=getattr(a, "inicio", 0.0) or 0.0, fin_s=getattr(a, "fin", None),
                           fps=getattr(a, "fps", 10.0))
     pipe = Pipeline(cal, cfg)
-    print(f"Analizando {a.fuente} -> {a.salida}")
-    resumen = pipe.correr(fuente, Path(a.salida), video_anotado=not a.sin_video, mostrar=vivo or a.mostrar,
-                          max_cuadros=getattr(a, "max_cuadros", None))
+    print(f"Analizando {a.fuente} -> {a.salida}" + (" (Ctrl+C o q en la ventana para terminar)" if vivo else ""))
+    grabar = getattr(a, "grabar", None)
+    # En vivo se termina con Ctrl+C (o q en la ventana): igual se guardan los datos y el reporte
+    mostrar = (vivo or a.mostrar) and not getattr(a, "sin_ventana", False)
+    resumen = pipe.correr(fuente, Path(a.salida), video_anotado=not a.sin_video, mostrar=mostrar,
+                          max_cuadros=getattr(a, "max_cuadros", None), grabar_entrada=Path(grabar) if grabar else None)
     fuente.cerrar()
     kits = dict(zip("AB", cfg.equipos.values())) if cfg.equipos else None
-    r = postprocesar(Path(a.salida), cal.cancha, resumen, a.ataca_derecha, kits, a.titulo, Path(a.fuente).name)
+    from .vision.fuentes import es_archivo
+    video = a.fuente if es_archivo(a.fuente) else (grabar if grabar and Path(grabar).exists() else None)
+    r = postprocesar(Path(a.salida), cal.cancha, resumen, a.ataca_derecha, kits, a.titulo, Path(a.fuente).name, video)
     pos = r["resumen"].get("posesion_pct")
     print(f"Listo: {resumen['cuadros_procesados']} cuadros en {resumen['segundos_proceso']:.0f} s "
           f"({resumen['cuadros_por_segundo']} cuadros/s) · reporte: {r['reporte']}")
     if pos:
         print(f"Posesión A {pos['A']}% · B {pos['B']}%")
+
+
+def cmd_fuentes(a):
+    from .vision.fuentes import listar_dispositivos, listar_pantallas, sugerir_zona
+    try:
+        pantallas = listar_pantallas()
+        print("Pantallas (para la página del partido):")
+        for m in pantallas:
+            print(f"  pantalla:{m['indice']}   {m['ancho']} x {m['alto']} en ({m['x']}, {m['y']})")
+    except RuntimeError as e:
+        print(f"Pantallas: no disponibles ({e})")
+    if a.sugerir is not None:
+        z = sugerir_zona(a.sugerir)
+        if z:
+            print(f"  reproductor encontrado ({z['metodo']}): pantalla:{a.sugerir}:{z['x']},{z['y']},{z['ancho']},{z['alto']}")
+        else:
+            print("  no encontré una zona con video en movimiento")
+    print("Capturadoras y cámaras (televisor por HDMI):")
+    disp = listar_dispositivos()
+    for d in disp:
+        aviso = "  · imagen negra: sin señal o protegida (HDCP)" if d["negro"] else ""
+        print(f"  disp:{d['indice']}   {d['nombre']}  {d['ancho']} x {d['alto']}{aviso}")
+    if not disp:
+        print("  ninguna encontrada")
+
+
+def cmd_var(a):
+    from .partido import Partido
+    o = a.origen
+    if o.startswith("skillcorner:"):
+        p = Partido.skillcorner(int(o.split(":")[1]))
+    elif o.startswith("statsbomb:"):
+        p = Partido.statsbomb(int(o.split(":")[1]))
+    else:
+        p = Partido.video(o)
+    rev = p.var()
+    res = rev.resumen()
+    print(f"{p.nombres.get('A')} – {p.nombres.get('B')}: {res['pases_revisados']} pases revisados · "
+          f"{res['fuera_de_lugar']} fuera de lugar · {res['dudosos']} dudosos · {res['goles_revisados']} goles revisados · "
+          f"{res.get('tiros_revisados', 0)} remates ({res.get('rebotes_fuera_de_lugar', 0)} rebotes en fuera de lugar, "
+          f"{res.get('interferencias', 0)} interferencias) · {res['faltas_revisadas']} faltas junto al área "
+          f"({res.get('ocasiones_manifiestas', 0)} ocasiones manifiestas, {res.get('manos', 0)} manos)")
+    lista = rev.todas() if a.todas else rev.destacadas()
+    for r in lista:
+        t = float(r.get("t") or 0)
+        minuto = f"{int(r['minuto'])}:{int(r.get('segundo', 0)):02d}" if r.get("minuto") is not None else f"{int(t // 60)}:{int(t % 60):02d}"
+        ver = r.get("decision_var") or r.get("veredicto", "")
+        print(f"  {minuto:>6}  {r.get('tipo', ''):<16} {ver:<18} {r.get('explicacion', '')}")
+    if not a.todas:
+        from .reportes.base import pagina
+        from .reportes.var import seccion_var
+        nombres_jug = {}
+        if p.tracking is not None and "nombre" in p.tracking:
+            nombres_jug = p.tracking.drop_duplicates("id").set_index("id")["nombre"].dropna().to_dict()
+        fotos, clips = {}, {}
+        es_video = not (o.startswith("skillcorner:") or o.startswith("statsbomb:"))
+        if es_video and (Path(o) / "var.json").exists():
+            import json
+            g = json.loads((Path(o) / "var.json").read_text(encoding="utf-8"))
+            fotos = {float(k): v for k, v in g.get("fotos", {}).items()}
+            clips = {float(k): v for k, v in g.get("clips", {}).items()}
+        html, css = seccion_var(rev, getattr(p, "_posiciones", None), nombres_jug, p.nombres, p.cancha.largo,
+                                p.cancha.ancho, p.info.get("fuente", ""), fotos, clips)
+        titulo = f"VAR · {p.nombres.get('A')} – {p.nombres.get('B')}"
+        defecto = Path(o) / "var.html" if es_video else Path(f"var_{o.replace(':', '_').strip('_') or 'partido'}.html")
+        ruta = Path(a.salida) if a.salida else defecto
+        ruta.write_text(pagina(titulo, f"<h1>{titulo}</h1>{html}", extra_css=css), encoding="utf-8")
+        print(f"Reporte VAR: {ruta}")
 
 
 def cmd_calibrar(a):
@@ -115,7 +193,7 @@ def cmd_verificar(a):
     cap = cv2.VideoCapture(a.video)
     fps = cap.get(cv2.CAP_PROP_FPS) or 25
     cuadro = int(round(a.t * fps)) if a.t is not None else int(cal.claves[0].get("cuadro") or 0)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, cuadro)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, cuadro))
     ok, frame = cap.read()
     cap.release()
     if not ok:
@@ -241,7 +319,20 @@ def construir_parser() -> argparse.ArgumentParser:
     p.add_argument("--ataca-derecha", choices=["A", "B"], default=None)
     p.add_argument("--sin-video", action="store_true")
     p.add_argument("--mostrar", action="store_true", default=True)
+    p.add_argument("--sin-ventana", action="store_true", help="no abrir la ventana con el video anotado")
+    p.add_argument("--grabar", default=None, help="guardar la señal en este .mp4 mientras se analiza")
     p.set_defaults(func=lambda a: cmd_analizar(a, vivo=True))
+
+    p = sub.add_parser("fuentes", help="listar monitores y capturadoras / cámaras conectadas")
+    p.add_argument("--sugerir", type=int, default=None, metavar="MONITOR",
+                   help="buscar el reproductor de video en ese monitor (lo que se mueve)")
+    p.set_defaults(func=cmd_fuentes)
+
+    p = sub.add_parser("var", help="revisión tipo VAR: fuera de lugar, goles, balón fuera y faltas en el área")
+    p.add_argument("origen", help="carpeta de resultados de `analista analizar`, skillcorner:ID o statsbomb:ID")
+    p.add_argument("-o", "--salida", default=None, help="reporte HTML (por defecto, var_<origen>.html)")
+    p.add_argument("--todas", action="store_true", help="listar todos los pases revisados, no solo las jugadas destacadas")
+    p.set_defaults(func=cmd_var)
 
     p = sub.add_parser("calibrar", help="crear calibracion.json a partir de pares de puntos")
     p.add_argument("video")

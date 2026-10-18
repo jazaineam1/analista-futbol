@@ -68,3 +68,13 @@ def test_panel_resultados_guardados(tmp_path):
     d = app.test_client().get("/api/resultados").json
     assert d["resumen"]["posesion_pct"] == {"A": 60.0, "B": None}
     assert d["archivos"] == ["metricas.json", "tracking.csv"]
+
+
+def test_panel_var_sin_analisis(cliente):
+    """Las herramientas del VAR responden con un mensaje claro si todavía no hay análisis."""
+    assert cliente.get("/api/var").json["items"] == []
+    assert cliente.get("/api/var/cuadro.jpg?t=1").status_code == 404
+    r = cliente.post("/api/var/instante", json={"t": 1.0, "equipo": "A"})
+    assert r.status_code == 400 and "analiza" in r.json["error"]
+    r = cliente.post("/api/var/falta", json={"t": 1.0, "equipo": "A", "u": 10, "v": 10})
+    assert r.status_code == 400 and "analiza" in r.json["error"]

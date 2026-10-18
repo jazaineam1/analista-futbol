@@ -1,8 +1,11 @@
 """Graba el video de demostración del panel (docs/media/demo.mp4, .webm y .gif).
 
 Necesita dos paneles corriendo:
-  A  proyecto vacío (con la calibración del clip de TV):   analista panel --carpeta /tmp/demoA --puerto 8801 --sin-navegador
-  B  proyecto con resultados y una explicación ya hechos:   analista panel --carpeta /tmp/demoB --puerto 8802 --sin-navegador
+  A  proyecto vacío (con la calibración del clip de TV), con pantalla (Xvfb) y una página que reproduce
+     el partido a pantalla completa (ver demo/probar_captura.py):
+         DISPLAY=:99 analista panel --carpeta /tmp/demoA --puerto 8801 --sin-navegador
+  B  proyecto con resultados (con los clips del VAR) y una explicación ya hechos:
+         analista panel --carpeta /tmp/demoB --puerto 8802 --sin-navegador
 
     python demo/grabar_demo.py --video-tv demo/clips/tv/video.mp4 -o docs/media
 """
@@ -10,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -100,18 +104,37 @@ def escena_a(pw, url, video_tv, carpeta_video, cancha_txt):
     g.esperar(1200)
     g.scroll_iframe("#dt-iframe", 2600, 7500)
     g.esperar(500)
-    # Video
-    g.leyenda("3 · O analiza tu propio video: archivo, capturadora HDMI o pantalla")
+    # Video: las fuentes
+    pg.evaluate("window.scrollTo({top:0,behavior:'smooth'})")
+    g.leyenda("3 · O analiza tu propio video: el televisor, la página donde lo ves en vivo o un archivo")
     pg.click("nav.tabs button[data-tab=fuente]")
-    g.esperar(700)
-    pg.click("#spec")
-    pg.keyboard.type(video_tv, delay=12)
-    pg.click("#abrir")
-    pg.wait_for_selector("#fuente-vista img", timeout=30000)
-    g.esperar(2200)
+    g.esperar(1600)
+    pg.click(".tipo[data-tipo=pantalla]")
+    g.leyenda("Pantalla del PC: una foto de la pantalla con la página del partido")
+    g.espera_rapida(lambda to: pg.wait_for_selector("#pan-marco:not([hidden])", timeout=to))
+    g.esperar(1800)
+    pg.click("#pan-detectar")
+    g.leyenda("La app encuentra sola el reproductor: la zona de la pantalla que se mueve")
+    g.espera_rapida(lambda to: pg.wait_for_selector("#pan-sel:not([hidden])", timeout=to))
+    g.esperar(2400)
+    pg.click("#pan-usar")
+    pg.wait_for_selector("#vista-img", timeout=30000)
+    pg.evaluate("document.querySelector('#fuente-vista').scrollIntoView({behavior:'smooth', block:'center'})")
+    g.leyenda("Esa zona queda como fuente en vivo: se analiza mientras miras el partido")
+    g.esperar(3800)
+    pg.evaluate("window.scrollTo({top:0,behavior:'smooth'})")
+    pg.click(".tipo[data-tipo=tele]")
+    g.leyenda("Televisor: la capturadora HDMI aparece con su nombre y una miniatura")
+    g.esperar(2600)
+    pg.click(".tipo[data-tipo=subir]")
+    g.leyenda("O sube un video: arrastrar y soltar")
+    g.esperar(900)
+    pg.set_input_files("#archivo", video_tv)
+    g.espera_rapida(lambda to: pg.wait_for_selector("#vista-img", timeout=to))
+    g.esperar(1800)
     pg.click("#ir-calibrar")
     g.leyenda("Calibra con 4 o más clics: las líneas rojas muestran que la cancha calza")
-    g.esperar(4200)
+    g.esperar(4000)
     pg.click("nav.tabs button[data-tab=analizar]")
     g.leyenda("Nombres y colores de los equipos, y a analizar")
     pg.click("#eq-a")
@@ -122,8 +145,8 @@ def escena_a(pw, url, video_tv, carpeta_video, cancha_txt):
     g.esperar(500)
     pg.click("#an-iniciar")
     pg.wait_for_selector("#an-img:not([hidden])", timeout=120000)
-    g.leyenda("Detecta, separa los equipos por color y ubica a todos en metros, en vivo")
-    g.esperar(11000)
+    g.leyenda("Detecta, separa los equipos por color y ubica a todos en metros")
+    g.esperar(10000)
     pg.click("#an-detener")
     g.esperar(300)
     marcas = g.rapidos
@@ -145,14 +168,40 @@ def escena_b(pw, url, carpeta_video):
     pg.evaluate("document.querySelector('#res-iframe').scrollIntoView({behavior:'smooth'})")
     g.esperar(1200)
     g.leyenda("El reporte: posesión, pases, presión y los goles, con la validación contra la verdad")
-    g.scroll_iframe("#res-iframe", 1800, 6000)
+    g.scroll_iframe("#res-iframe", 1800, 5000)
+    pg.evaluate("window.scrollTo({top:0,behavior:'smooth'})")
+    # VAR
+    pg.click("nav.tabs button[data-tab=var]")
+    pg.wait_for_selector("#var-cont:not([hidden])", timeout=30000)
+    g.leyenda("5 · VAR: cada pase y cada remate, revisados en el instante exacto")
+    g.esperar(2400)
+    con_clip = pg.locator("#var-lista button:has(.chip)")
+    if con_clip.count():
+        con_clip.first.click()
+    pg.wait_for_selector("#var-foto video", timeout=10000)
+    pg.evaluate("document.querySelector('#var-foto video').currentTime = 0")
+    g.leyenda("La repetición sobre el video: cámara lenta, imagen congelada y las líneas en perspectiva")
+    g.esperar(9500)
+    pg.click("#var-vistas [data-v='2d']")
+    g.leyenda("Y en 2D: la cámara sigue la jugada, se congela en el pase y mide el margen ± el error")
+    g.esperar(9000)
+    pg.evaluate("document.querySelector('#vm').scrollIntoView({behavior:'smooth', block:'start'})")
+    g.leyenda("Revisión manual, cuadro a cuadro, como el operador del VAR")
+    pg.evaluate("document.querySelector('#vm-t').value = 7.52; document.querySelector('#vm-t').dispatchEvent(new Event('input'))")
+    g.esperar(1200)
+    for _ in range(2):
+        pg.click("#vm-adel")
+        g.esperar(700)
+    pg.click("#vm-ir")
+    g.espera_rapida(lambda to: pg.wait_for_function("!document.querySelector('#vm-msg').textContent.startsWith('Midiendo')", timeout=to))
+    g.esperar(2600)
     pg.click("nav.tabs button[data-tab=detecta]")
     pg.wait_for_selector("#ex-cont:not([hidden])", timeout=30000)
     g.leyenda("Y te muestra cómo detecta, etapa por etapa, sobre el cuadro que elijas")
-    g.esperar(2200)
-    for _ in range(9):
+    g.esperar(2000)
+    for _ in range(5):
         pg.click("#ex-sig")
-        g.esperar(1500)
+        g.esperar(1300)
     g.leyenda("Analista de fútbol · código abierto · github.com/jazaineam1/analista-futbol")
     g.esperar(3500)
     ruta = pg.video.path()
@@ -206,6 +255,44 @@ def editar(clips: list[tuple[Path, list]], salida: Path, factor=5.0):
     return mp4
 
 
+def pagina_partido(pw, video: Path):
+    """La "TV": un navegador visible a pantalla completa con una página que reproduce el partido
+    (la que la app captura en la escena de la pantalla del PC)."""
+    import importlib.util
+    import tempfile
+    spec = importlib.util.spec_from_file_location("probar_captura", Path(__file__).with_name("probar_captura.py"))
+    pc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pc)
+    webm = pc.a_webm(video, video.with_suffix(".webm"))
+    tmp = Path(tempfile.mkdtemp(prefix="pagina_demo_"))
+    html_ = pc.PAGINA.format(x=160, y=120, w=1280, h=720, ax=160 + 1280 + 24, src=webm.as_uri()).replace(
+        "muted playsinline", "muted loop autoplay playsinline")
+    (tmp / "partido.html").write_text(html_, encoding="utf-8")
+    nav = pw.chromium.launch(headless=False, args=["--kiosk", "--window-position=0,0", "--window-size=1920,1080",
+                                                   "--autoplay-policy=no-user-gesture-required"])
+    pg = nav.new_page(no_viewport=True)
+    pg.goto((tmp / "partido.html").as_uri())
+    pg.wait_for_function("document.getElementById('v').readyState >= 3", timeout=30000)
+    pg.evaluate("document.getElementById('v').play()")
+    return nav
+
+
+def preparar_reportes(url: str):
+    """Genera antes los reportes de datos abiertos del recorrido: el panel reutiliza el reporte de un partido ya
+    calculado en la sesión, así el cálculo pesado no compite con la grabación de la pantalla."""
+    import requests
+    for cuerpo in ({"fuente": "statsbomb", "partido_id": 3869685, "competicion": 43, "temporada": 106},
+                   {"fuente": "skillcorner", "partido_id": 1886347}):
+        requests.post(url + "/api/datos/reporte", json=cuerpo, timeout=30).raise_for_status()
+        t0 = time.time()
+        while (d := requests.get(url + "/api/datos/trabajo", timeout=30).json()).get("estado") == "corriendo":
+            if time.time() - t0 > 600:
+                raise TimeoutError(f"el reporte {cuerpo} no terminó")
+            time.sleep(1)
+        if d.get("estado") != "listo":
+            raise RuntimeError(f"no se pudo preparar {cuerpo}: {d}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--a", default="http://localhost:8801")
@@ -215,8 +302,12 @@ def main():
     a = ap.parse_args()
     salida = Path(a.salida)
     crudo = salida / "_crudo"
+    preparar_reportes(a.a)
     with sync_playwright() as pw:
+        tv = pagina_partido(pw, Path(a.video_tv)) if os.environ.get("DISPLAY") else None
         va, ma = escena_a(pw, a.a, a.video_tv, crudo, "")
+        if tv is not None:
+            tv.close()
         vb, mb = escena_b(pw, a.b, crudo)
     (crudo / "marcas.json").write_text(json.dumps({"a": ma, "b": mb}))
     mp4 = editar([(va, ma), (vb, mb)], salida)

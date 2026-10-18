@@ -109,6 +109,15 @@ def reporte_tracking(partido, ruta: Path, titulo: str | None = None) -> Path:
         f'<td class="num">{x.vel_max * 3.6:.1f}</td><td class="num">{x.seg_sprint:.0f}</td></tr>'
         for x in top.itertuples())
 
+    var_html, var_css = "", ""
+    try:
+        from .var import seccion_var
+        rev = partido.var()
+        var_html, var_css = seccion_var(rev, partido._posiciones, nombres_jug, nombres, partido.cancha.largo,
+                                        partido.cancha.ancho, info.get("fuente", "tracking"))
+    except Exception as ex:  # noqa: BLE001  (el reporte sale igual sin la sección VAR)
+        var_html = f'<h2>VAR</h2><p class="nota">No se pudo hacer la revisión: {e(ex)}</p>'
+
     cuerpo = f"""
 <h1>{e(titulo)}</h1>
 <p class="sub">{e(sub)} · tracking: {e(info.get("fuente", ""))} ({len(tr["cuadro"].unique()):,} cuadros)</p>
@@ -131,13 +140,16 @@ def reporte_tracking(partido, ruta: Path, titulo: str | None = None) -> Path:
 <div class="card scroll"><table><tr><th>Jugador</th><th>Min. con tracking</th><th>Distancia (km)</th>
 <th>Vel. máx (km/h)</th><th>Seg. a +25 km/h</th></tr>{filas_top}</table>
 <div class="nota">Distancia durante los minutos con tracking (la transmisión no cubre repeticiones ni primeros planos).</div></div>
+{var_html}
 <h2>Notas</h2>
 <div class="card"><ul class="nota">
 <li>Posesión, pases y presión se infieren del tracking: tiene el balón quien está a ≤2 m de él.</li>
+<li>VAR: pases y receptor buscado de los eventos dinámicos de SkillCorner; posiciones a 10 Hz interpoladas al instante del pase.
+Un jugador fuera de cámara tiene posición estimada (borde punteado) y más incertidumbre.</li>
 <li>Control de cancha: modelo de tiempo de llegada (reacción 0,7 s, 5 m/s, transición logística).</li>
 <li>Velocidad máxima sostenida durante ~1 s, solo con posiciones observadas por la cámara.</li>
 <li>Fuente: {e(info.get("fuente", ""))}. El equipo {e(nombres["A"])} se dibuja atacando hacia la derecha en todo el partido.</li>
 </ul></div>"""
     ruta.parent.mkdir(parents=True, exist_ok=True)
-    ruta.write_text(pagina(titulo, cuerpo, {"resumen": r}), encoding="utf-8")
+    ruta.write_text(pagina(titulo, cuerpo, {"resumen": r}, extra_css=var_css), encoding="utf-8")
     return ruta

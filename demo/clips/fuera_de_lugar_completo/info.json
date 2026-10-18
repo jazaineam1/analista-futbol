@@ -1,0 +1,39 @@
+{
+  "fuente": "SkillCorner Open Data, partido 1886347",
+  "camara": "completa",
+  "fps": 25.0,
+  "resolucion": [
+    1920,
+    1080
+  ],
+  "cancha": {
+    "largo": 104.0,
+    "ancho": 68.0
+  },
+  "tramos": [
+    {
+      "tramo": 0,
+      "cuadros_sc": [
+        30290,
+        30420
+      ],
+      "cuadro_ini": 0,
+      "cuadro_fin": 325,
+      "t_ini": 0.0,
+      "t_fin": 13.0
+    }
+  ],
+  "goles": [],
+  "equipos": {
+    "A": {
+      "nombre": "Auckland FC",
+      "kit": "azul"
+    },
+    "B": {
+      "nombre": "Newcastle United Jets FC",
+      "kit": "blanco"
+    }
+  },
+  "ruido_clic_px": 2.0,
+  "cuadros": 326
+}

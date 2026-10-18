@@ -100,9 +100,35 @@ def _validacion(salida: Path, nombres: dict) -> str:
             + "".join(filas) + "</table></div>")
 
 
+def _seccion_var(salida: Path, var=None) -> tuple[str, str]:
+    """Sección VAR del reporte de video. var = (RevisionVar, Posiciones, fotos, clips) o None para calcularla."""
+    import json
+
+    from .var import seccion_var
+    try:
+        from ..partido import Partido
+        p = Partido.video(salida)
+        if var is None:
+            fotos, clips = {}, {}
+            if (salida / "var.json").exists():
+                guardado = json.loads((salida / "var.json").read_text(encoding="utf-8"))
+                fotos = {float(k): v for k, v in guardado.get("fotos", {}).items() if (salida / v).exists()}
+                clips = {float(k): v for k, v in guardado.get("clips", {}).items() if (salida / v).exists()}
+            rev, pos = p.var(), p._posiciones
+        else:
+            rev, pos, fotos, clips = var
+        ids = sorted(set(p.tracking["id"].dropna())) if len(p.tracking) else []
+        nombres_jug = {i: f"#{int(i)}" if isinstance(i, (int, float)) and float(i).is_integer() else str(i) for i in ids}
+        return seccion_var(rev, pos, nombres_jug, p.nombres, p.cancha.largo, p.cancha.ancho,
+                           "video analizado por la app", fotos, clips)
+    except Exception as ex:  # noqa: BLE001
+        return f'<h2>VAR</h2><p class="nota">No se pudo hacer la revisión VAR: {e(ex)}</p>', ""
+
+
 def generar_reporte(salida: Path, df: pd.DataFrame, calc: dict, resumen_proceso: dict, cancha: Cancha,
-                    titulo: str = "Análisis del partido", nota_fuente: str = "") -> Path:
+                    titulo: str = "Análisis del partido", nota_fuente: str = "", var=None) -> Path:
     salida = Path(salida)
+    var_html, var_css = _seccion_var(salida, var)
     r = calc["resumen"]
     nombres = resumen_proceso.get("nombres_equipos", {"A": "Equipo A", "B": "Equipo B"})
     kits = resumen_proceso.get("colores_kit") or resumen_proceso.get("colores_equipos", {})
@@ -226,6 +252,7 @@ def generar_reporte(salida: Path, df: pd.DataFrame, calc: dict, resumen_proceso:
 <h2>Físico (jugadores más visibles)</h2>
 <div class="card scroll"><table><tr><th>Equipo</th><th>Pista</th><th>Rol</th><th>Seg. visible</th><th>Distancia (m)</th>
 <th>Vel. máx (km/h)</th><th>m/min</th></tr>{top}</table></div>
+{var_html}
 {_validacion(salida, nombres)}
 <h2>Calidad de los datos y límites</h2>
 <div class="card"><ul class="nota">
@@ -237,7 +264,7 @@ Para identidad real hace falta lectura de dorsales.</li>
 <li>Procesado a {resumen_proceso.get("cuadros_por_segundo", "–")} cuadros/s · detector y parámetros en <code>resumen_proceso.json</code>.</li>
 </ul></div>"""
     ruta = salida / "reporte.html"
-    ruta.write_text(pagina(titulo, cuerpo, {"resumen": r}), encoding="utf-8")
+    ruta.write_text(pagina(titulo, cuerpo, {"resumen": r}, extra_css=var_css), encoding="utf-8")
     return ruta
 
 

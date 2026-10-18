@@ -20,8 +20,12 @@
 <nav class="indice" aria-label="Contenido de la guía">
   <a href="#requisitos">Qué necesitas</a>
   <a href="#instalar">Instalar</a>
+  <a href="#fuentes">De dónde sale el video</a>
   <a href="#televisor">Conectar el televisor</a>
+  <a href="#pantalla">El partido en una página web</a>
   <a href="#panel">El panel, paso a paso</a>
+  <a href="#vivo">En vivo y grabar la señal</a>
+  <a href="#var">VAR</a>
   <a href="#calibrar">Calibrar bien</a>
   <a href="#datos">Datos abiertos</a>
   <a href="#cli">Línea de comandos</a>
@@ -31,9 +35,9 @@
   <a href="#problemas">Problemas frecuentes</a>
 </nav>
 <article class="cuerpo">
-<p class="eti">Guía de uso · versión 0.3</p>
+<p class="eti">Guía de uso · versión 0.4</p>
 <h1 style="font-size:clamp(40px,6vw,64px)">Guía de Analista</h1>
-<p class="lead">Todo lo necesario para analizar un partido: desde un archivo de video o la señal del televisor, o desde datos abiertos de eventos y tracking.</p>
+<p class="lead">Todo lo necesario para analizar un partido: desde un video que subes, la página donde lo ves en vivo, la señal del televisor o datos abiertos de eventos y tracking; y para revisar jugadas como el VAR.</p>
 
 <h2 id="requisitos">Qué necesitas</h2>
 <ul>
@@ -52,23 +56,76 @@ pip install "git+https://github.com/jazaineam1/analista-futbol"</pre>
 <p>Comprueba la instalación con <code>analista --version</code>. La primera vez que analices un video se descargan los pesos de YOLO (unos 6 MB).</p>
 <p>Para usar la GPU instala antes PyTorch con CUDA siguiendo <a href="https://pytorch.org/get-started/locally/">pytorch.org</a>.</p>
 
+<h2 id="fuentes">De dónde sale el video</h2>
+<p>En la pestaña <b>Fuente</b> del panel hay cuatro tarjetas:</p>
+<div class="tabla"><table>
+<tr><th>Tarjeta</th><th>Para qué</th><th>Cómo</th></tr>
+<tr><td><b>Subir un video</b></td><td>Un partido grabado, un resumen o una grabación en vivo anterior</td><td>Arrastra el archivo (mp4, mkv, mov, avi, webm, ts) o elígelo. Se copia a <code>proyecto/videos/</code>, con barra de progreso, y queda en la lista <i>Videos del proyecto</i></td></tr>
+<tr><td><b>Pantalla del PC</b></td><td>El partido en vivo en una página web o una app</td><td>Elige el monitor, toma una foto de la pantalla y marca el reproductor arrastrando un rectángulo, o pulsa <i>Detectar el reproductor</i></td></tr>
+<tr><td><b>Televisor</b></td><td>La señal del decodificador, TV box o consola</td><td>Por una capturadora HDMI-USB: la app las busca y muestra su nombre y una miniatura</td></tr>
+<tr><td><b>Ruta o URL</b></td><td>Un archivo del disco sin copiarlo, o un stream de red</td><td><code>C:\videos\partido.mp4</code>, <code>disp:0</code>, <code>pantalla:1:0,80,1280,720</code>, <code>rtsp://…</code> o <code>https://…m3u8</code></td></tr>
+</table></div>
+
 <h2 id="televisor">Conectar el televisor</h2>
 <p>La app no se conecta al televisor: lee la misma señal que le llega. La forma más simple es poner la capturadora entre el decodificador y la TV:</p>
 <pre>decodificador / consola ──HDMI──▶ divisor ──▶ televisor
                                      └──────▶ capturadora USB ──▶ PC</pre>
-<p>Después, en el panel, elige la fuente <code>disp:0</code> (o <code>disp:1</code> si tienes una cámara web). También puedes analizar lo que se ve en la pantalla del PC con la fuente <code>pantalla</code>, o un flujo de red con su URL <code>rtsp://…</code>.</p>
+<p>Después, en el panel, abre <b>Fuente → Televisor</b> y pulsa <i>Buscar capturadoras y cámaras</i>: cada dispositivo aparece con su nombre (por ejemplo «USB Video») y una imagen de lo que está recibiendo; elige el que muestra el partido. Desde la línea de comandos, <code>analista fuentes</code> los lista y la fuente es <code>disp:0</code>, <code>disp:1</code>…</p>
 <p class="aviso">Si la vista previa sale negra, la fuente tiene protección de contenido (HDCP). La app no la evita: usa una fuente sin protección, tus propias grabaciones o un servicio que permita ver el partido en el PC.</p>
+
+<h2 id="pantalla">El partido en una página web</h2>
+<p>Si ves el partido en el navegador (o en una app de escritorio), la app puede analizar esa zona de la pantalla:</p>
+<ol>
+  <li>Abre el partido y deja el reproductor <b>grande y visible</b>. Con dos monitores, ponlo en el otro; con uno solo, deja el reproductor a la vista (por ejemplo, a pantalla completa) y usa <i>Esperar 5 s antes de la foto</i> para alcanzar a cambiar de ventana.</li>
+  <li>En <b>Fuente → Pantalla del PC</b> elige el monitor y pulsa <i>Detectar el reproductor</i>: la app toma varias fotos seguidas y encuentra el rectángulo que se mueve (el video), mientras el resto de la página queda quieto. Si no lo encuentra (por ejemplo, con el video en pausa), arrastra el rectángulo sobre la foto.</li>
+  <li>Pulsa <i>Usar esta zona</i>. La vista previa se actualiza cada segundo para que compruebes que es el partido.</li>
+</ol>
+<p>La captura toma lo que se ve en esa zona: si otra ventana la tapa, se analiza esa ventana. Desde la línea de comandos, <code>analista fuentes --sugerir 1</code> imprime la zona y <code>analista vivo pantalla:1:x,y,ancho,alto -c calibracion.json</code> la analiza.</p>
+<p class="aviso">Muchos servicios de streaming protegen el video (DRM): la captura de pantalla recibe un rectángulo negro. La app no lo evita.</p>
 
 <h2 id="panel">El panel, paso a paso</h2>
 <p>Ábrelo con <code>analista panel</code>; se abre solo en el navegador, en <code>http://localhost:8765</code>. Todo lo que hagas queda en la carpeta del proyecto (<code>proyecto/</code> por defecto; cámbiala con <code>--carpeta</code>).</p>
 <ol>
   <li><b>Datos de partidos.</b> Elige una competición de StatsBomb o el tracking de SkillCorner, busca un equipo y pulsa <i>Generar reporte</i>. El reporte aparece debajo y queda guardado en <code>proyecto/reportes/</code>.</li>
-  <li><b>Fuente.</b> Escribe la ruta del video (o usa un atajo para la capturadora o la pantalla) y pulsa <i>Abrir</i>.</li>
-  <li><b>Calibrar.</b> Marca cuatro o más puntos en la imagen y su punto en la cancha. Las líneas rojas te dicen si quedó bien (ver abajo).</li>
+  <li><b>Fuente.</b> Sube un video, elige la zona de la pantalla con el partido, la capturadora del televisor o escribe una ruta (ver arriba).</li>
+  <li><b>Calibrar.</b> Marca cuatro o más puntos en la imagen y su punto en la cancha. Las líneas rojas te dicen si quedó bien (ver abajo). En vivo la imagen queda congelada: espera una toma amplia de la cámara principal y pulsa <i>Congelar otro cuadro</i> si hace falta.</li>
   <li><b>Analizar.</b> Escribe los nombres de los equipos y, si quieres, el color de cada camiseta. Elige la resolución: 1280 px para la cámara de TV; 1920 px para un plano completo fijo, donde los jugadores son pequeños.</li>
   <li><b>Resultados.</b> El video anotado con el minimapa, las métricas, el reporte y los archivos CSV para descargar.</li>
+  <li><b>VAR.</b> Las jugadas revisadas (fuera de lugar en pases y remates, goles, balones que salieron, faltas) con su repetición sobre el video y la reconstrucción 2D; y la revisión manual cuadro a cuadro: trazar las líneas en el cuadro del pase o marcar una falta con un clic (ver <a href="#var">VAR</a>).</li>
   <li><b>Cómo detecta.</b> Elige un instante y recorre las 10 etapas de la detección sobre ese cuadro. Sirve para entender un error: por ejemplo, ver si el balón no se encontró o si la calibración se desvió.</li>
 </ol>
+
+<h2 id="vivo">En vivo y grabar la señal</h2>
+<ul>
+  <li>Con la pantalla o la capturadora, la pestaña <b>Analizar</b> muestra <i>Analizar en vivo</i> (5, 10 o 15 cuadros por segundo) y <i>Grabar la señal mientras se analiza</i>.</li>
+  <li>La captura corre aparte del análisis: si el PC no alcanza el ritmo, se saltan cuadros en vez de acumular retraso. La grabación es en tiempo real (25 cuadros por segundo): un minuto de partido dura un minuto en el archivo.</li>
+  <li>El análisis sigue hasta que pulses <i>Detener</i> (o <code>Ctrl+C</code> en <code>analista vivo</code>); entonces se calculan las métricas, el reporte y el VAR de lo analizado.</li>
+  <li>La grabación queda en <i>Videos del proyecto</i> como <code>en_vivo_AAAAMMDD_HHMMSS.mp4</code>: ábrela como fuente para recorrer <i>Cómo detecta</i> o para volver a analizar con más calma.</li>
+  <li>La calibración en vivo se guarda con el cuadro congelado. Al empezar y después de cada corte (una repetición, otra cámara) la app compara el césped y las líneas con ese cuadro para ubicar la cámara sola. Si la transmisión alterna dos cámaras, calibra cada una con <i>Agregar como otra toma</i>.</li>
+  <li>En vivo el panel analiza a 960 px de ancho para ir más rápido (puedes cambiarlo en <i>Resolución</i>). En un PC de 2 núcleos sin GPU, con el navegador reproduciendo el partido en el mismo equipo, va a unos 3 cuadros por segundo y ubica a dos de cada tres jugadores con un error cercano a 1 m. Para el análisis fino, analiza después la grabación.</li>
+</ul>
+
+<h2 id="var">VAR</h2>
+<p>La app revisa las jugadas como lo haría un asistente de video, con los datos que tiene. Está en la pestaña <b>VAR</b> del panel, en los reportes (sección <i>VAR: jugadas revisadas</i>) y en <code>analista var</code>.</p>
+<div class="tabla"><table>
+<tr><th>Revisión</th><th>Cómo la hace</th></tr>
+<tr><td>Fuera de lugar</td><td>En cada pase busca el instante en que el balón sale del pie (ajusta su trayectoria, entre dos cuadros si hace falta), traza la línea del penúltimo defensor, o del balón si está más adelantado, y mide al receptor. Aplica las reglas: en línea es habilitado; no hay fuera de lugar en su campo ni en saques de banda, de meta o de esquina; si el pase no le llega, no intervino.</td></tr>
+<tr><td>Margen ± error</td><td>Cada decisión lleva su incertidumbre: error de posición de la fuente, de la cámara en ese cuadro (según cómo calzan las líneas), jugadores tapados por otros, la parte del cuerpo y el instante del pase. Si el margen cae dentro de ±2σ la jugada es <b>dudosa</b>.</td></tr>
+<tr><td>Lo que no se ve</td><td>Si el arquero no está en imagen se supone en su arco. Si un defensor podría estar fuera de cámara detrás del receptor, un fuera de lugar pasa a dudoso. Si el pase va hacia una zona que la cámara no muestra, la jugada es <b>no revisable</b>.</td></tr>
+<tr><td>Parte del cuerpo</td><td>Con video, el margen se mide con la parte del cuerpo más adelantada que puede jugar el balón (pie, rodilla, cadera, hombro o cabeza; los brazos no cuentan), como el VAR semiautomático: la silueta del jugador se separa del césped y cada punto se baja a la altura de los pies. Si dos jugadores se tapan, se usa el centro de los pies y se avisa.</td></tr>
+<tr><td>Rebote e interferencia</td><td>En cada remate se mira quién estaba adelantado en ese instante. Si después de una atajada, un palo o un desvío el balón le llega a uno de ellos, es <b>fuera de lugar en el rebote</b> (un despeje deliberado del rival lo habilita). Si estaba parado en la línea entre el balón y el arquero, en la trayectoria del tiro o encima del arquero, queda para <b>revisar</b> por interferencia: si le impidió jugar el balón lo decide el árbitro.</td></tr>
+<tr><td>Revisión manual</td><td>Como el operador del VAR: avanza cuadro a cuadro (botones o las teclas <kbd>,</kbd> y <kbd>.</kbd>) hasta el instante en que sale el pase, elige el equipo que ataca y la app traza las líneas sobre el video y en 2D. En modo <i>Falta o mano</i>, haz clic donde fue la falta: la app dice si fue dentro o fuera del área y si cortó una ocasión manifiesta de gol.</td></tr>
+<tr><td>Gol</td><td>Si el balón cruzó entero la línea entre los postes (y bajo el travesaño cuando se conoce la altura), y la jugada previa: todos los pases y remates desde que el equipo recuperó el balón, si alguno fue fuera de lugar y si el balón salió en algún momento.</td></tr>
+<tr><td>Balón fuera</td><td>Balones que cruzaron entera la línea un instante y volvieron sin que se detuviera el juego.</td></tr>
+<tr><td>Falta en el área</td><td>Con eventos (StatsBomb, SkillCorner) o marcada a mano en el video: si fue dentro o fuera del área y a cuántos metros de la línea (la línea es parte del área), comparado con lo que se sancionó. Las manos de StatsBomb salen marcadas como <i>Mano</i>, con la tarjeta que se mostró.</td></tr>
+<tr><td>Ocasión manifiesta de gol</td><td>Para cada falta, los criterios de la Ley 12 medidos con posiciones: distancia al arco, si iba hacia el arco, si tenía el balón y cuántos defensores de campo podían llegar antes (los que están en el camino al arco o a su lado). Si se cumplen, sale como posible roja (en el área: penal, y la tarjeta depende de si el infractor intentó jugar el balón).</td></tr>
+</table></div>
+<p>Con video, cada jugada importante trae una <b>repetición sobre el video</b> como en la TV: cámara lenta hasta el instante revisado, imagen congelada con zoom, la línea del defensor y la del atacante que se trazan de banda a banda en perspectiva sobre el césped, el margen que cuenta hasta su valor y el veredicto.</p>
+<p>Y todas tienen una <b>reconstrucción 2D</b> animada: la cámara sigue al balón, al llegar al instante revisado la imagen se congela, hace zoom a la jugada, se trazan las líneas y aparece el veredicto; un mapa chico muestra qué parte de la cancha estás viendo. Controles: reproducir/pausa (<kbd>espacio</kbd>), cuadro a cuadro (<kbd>←</kbd> <kbd>→</kbd>), <i>VAR</i> (<kbd>V</kbd>) para ir al instante revisado, velocidad 0,25×–1×, estelas y tres vistas: <i>Sigue la jugada</i>, <i>Vista de transmisión</i> (inclinada, como la cámara de TV) y <i>Cancha entera</i>. Los jugadores fuera de cámara llevan borde punteado.</p>
+<pre>analista var resultados/                 <span class="c"># tu video analizado</span>
+analista var skillcorner:1886347         <span class="c"># tracking de SkillCorner (pases y receptor de sus eventos)</span>
+analista var statsbomb:3869685           <span class="c"># capturas 360 de StatsBomb (Mundial 2022, Euro 2020 y 2024…)</span></pre>
+<p>La app no reemplaza al VAR: una sola cámara de TV no ve a todos los jugadores, la silueta da una aproximación de la parte del cuerpo más adelantada, y el contacto de una falta no se ve en las posiciones (por eso las faltas vienen de los eventos o se marcan a mano; probamos detectar posibles penales por frenadas con un rival encima y acertaba menos del 10 %, así que la app no lo hace). Las cifras de la validación están en la <a href="var/index.html">página del VAR</a>.</p>
 
 <h2 id="calibrar">Calibrar bien</h2>
 <ul>
@@ -94,7 +151,9 @@ pip install "git+https://github.com/jazaineam1/analista-futbol"</pre>
 <tr><th>Comando</th><th>Para qué</th></tr>
 <tr><td><code>analista panel</code></td><td>Panel web local</td></tr>
 <tr><td><code>analista analizar video.mp4 -c calibracion.json -o resultados</code></td><td>Procesar un archivo completo (o un tramo con <code>--inicio</code> y <code>--fin</code>)</td></tr>
-<tr><td><code>analista vivo disp:0 -c calibracion.json</code></td><td>Seguir un partido en vivo con ventana</td></tr>
+<tr><td><code>analista vivo disp:0 -c calibracion.json --grabar partido.mp4</code></td><td>Seguir un partido en vivo con ventana, grabando la señal (también <code>pantalla:M:x,y,ancho,alto</code>)</td></tr>
+<tr><td><code>analista fuentes --sugerir 1</code></td><td>Monitores, capturadoras con su nombre y la zona del reproductor en el monitor 1</td></tr>
+<tr><td><code>analista var resultados/</code></td><td>VAR: fuera de lugar, goles, balón fuera y faltas (también <code>skillcorner:ID</code> o <code>statsbomb:ID</code>), con reporte HTML</td></tr>
 <tr><td><code>analista calibrar video.mp4 --puntos "u,v=x,y;…"</code></td><td>Calibrar sin el panel (píxeles = metros)</td></tr>
 <tr><td><code>analista verificar video.mp4 -c calibracion.json</code></td><td>Imagen con la cancha calibrada en rojo</td></tr>
 <tr><td><code>analista explicar video.mp4 -c calibracion.json -t 20,23</code></td><td>Página con las 10 etapas en esos segundos</td></tr>
@@ -132,6 +191,7 @@ mio.reporte("mi_partido.html")</pre>
 <tr><td><code>poseedor.csv</code>, <code>toques.csv</code>, <code>pases.csv</code></td><td>Quién tiene el balón, controles y pases estimados</td></tr>
 <tr><td><code>forma.csv</code>, <code>fisico.csv</code>, <code>eventos.csv</code></td><td>Forma del equipo por cuadro, distancia y velocidades, goles y remates detectados</td></tr>
 <tr><td><code>metricas.json</code>, <code>reporte.html</code>, <code>video_anotado.mp4</code></td><td>Resumen, reporte autocontenido y video con anotaciones</td></tr>
+<tr><td><code>var.json</code>, <code>var_NN.jpg</code></td><td>Revisiones del VAR (margen, incertidumbre, veredicto) y el cuadro del video de cada jugada con las líneas</td></tr>
 </table></div>
 
 <h2 id="metricas">Qué mide cada métrica</h2>
@@ -158,6 +218,12 @@ mio.reporte("mi_partido.html")</pre>
 <p>Escribe el color de cada camiseta en <i>Analizar</i>. Si un equipo viste un color parecido al del césped o al del rival, la separación por color es más difícil; el arquero y el árbitro aparecen como "otro".</p>
 <h3>Va muy lento</h3>
 <p>Baja la resolución a 960 px, usa <i>Procesar 1 de cada 2 cuadros</i> o instala PyTorch con CUDA si tienes una tarjeta NVIDIA.</p>
+<h3>La captura de pantalla sale negra</h3>
+<p>El servicio de streaming protege el video (DRM) o el navegador usa aceleración por hardware que no se deja capturar. La app no evita la protección; prueba con otro navegador o con una fuente sin protección.</p>
+<h3>"Detectar el reproductor" no lo encuentra</h3>
+<p>El video tiene que estar reproduciéndose y visible. Si hay otras animaciones grandes en la página, marca el rectángulo a mano arrastrando sobre la foto.</p>
+<h3>El VAR dice "no revisable" o "dudoso"</h3>
+<p>Con una cámara de TV el receptor o el último defensor suelen quedar fuera de la imagen en un pase largo, y la app no inventa la decisión. Usa la revisión manual en un cuadro donde se vean, o un video con plano completo.</p>
 <h3>No encuentra el balón</h3>
 <p>En planos generales el balón mide pocos píxeles y la red COCO lo pierde a menudo. La app lo complementa con un detector de manchas, pero un balón en el aire o tapado no se puede ubicar en metros. Para mejores resultados, entrena un modelo YOLO con imágenes de fútbol y pásalo con <code>--modelo</code>.</p>
 </article>

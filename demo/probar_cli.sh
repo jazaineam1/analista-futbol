@@ -38,6 +38,15 @@ paso "analizar (4 s)"              res/reporte.html         analista analizar "$
 paso "analizar sin YOLO"           res2/tracking.csv        analista analizar "$CLIP/video.mp4" -c cal.json -o res2 --fin 3 --detector cesped --sin-video
 paso "reporte"                     res/reporte.html         analista reporte res --titulo "Prueba"
 paso "explicar"                    exp/pagina.html          analista explicar "$CLIP/video.mp4" -c cal.json -t 2 -o exp/pagina.html --modelo "$MODELO"
+paso "var del video"               res/var.html             analista var res
+paso "var skillcorner"             var_sk.html              analista var skillcorner:1886347 -o var_sk.html
+paso "var statsbomb"               var_sb.html              analista var statsbomb:3869685 -o var_sb.html
+paso "fuentes"                     ""                       analista fuentes
+if [ -n "${DISPLAY:-}" ]; then
+  # en vivo desde la pantalla, 6 s, grabando la señal (termina solo con timeout -s INT, como Ctrl+C)
+  paso "vivo pantalla y grabar"    vivo/reporte.html        timeout --preserve-status -s INT 25 analista vivo "pantalla:1:0,0,1280,720" -c cal.json -o vivo \
+                                                            --fps 4 --grabar vivo.mp4 --sin-video --sin-ventana --modelo "$MODELO"
+fi
 paso "error claro sin calibración" ""                       bash -c "! analista analizar '$CLIP/video.mp4' -c no_existe.json -o x 2>/dev/null"
 echo
 echo "$fallas fallas"

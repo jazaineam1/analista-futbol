@@ -549,7 +549,7 @@ def explicar_video(video: str, calibracion, cfg, tiempos: list[float], carpeta: 
     pipe = Pipeline(calibracion, cfg)
     # Con cámara fija basta calentar 3 s antes (colores de equipo, seguimiento). Con cámara de TV
     # hay que empezar donde se calibró a mano y seguir el movimiento desde ahí.
-    claves = [int(k.get("cuadro") or 0) for k in calibracion.claves] or [0]
+    claves = [max(0, int(k.get("cuadro") or 0)) for k in calibracion.claves] or [0]   # en vivo: -1, -2…
     f = FuenteArchivo(video)
     fps = f.fps
     f.cerrar()

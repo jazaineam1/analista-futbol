@@ -1,0 +1,103 @@
+{
+  "cancha": {
+    "largo": 104.0,
+    "ancho": 68.0
+  },
+  "resolucion": [
+    1280,
+    720
+  ],
+  "camara_fija": false,
+  "lente": null,
+  "claves": [
+    {
+      "cuadro": 0,
+      "puntos": [
+        {
+          "imagen": [
+            727.0,
+            318.4
+          ],
+          "cancha": [
+            35.5,
+            -20.16
+          ],
+          "nombre": "area_grande_der_frente_cercana"
+        },
+        {
+          "imagen": [
+            1186.5,
+            206.0
+          ],
+          "cancha": [
+            52.0,
+            -20.16
+          ],
+          "nombre": "area_grande_der_fondo_cercana"
+        },
+        {
+          "imagen": [
+            477.9,
+            36.0
+          ],
+          "cancha": [
+            46.5,
+            9.16
+          ],
+          "nombre": "area_chica_der_frente_lejana"
+        },
+        {
+          "imagen": [
+            926.7,
+            124.8
+          ],
+          "cancha": [
+            52.0,
+            -9.16
+          ],
+          "nombre": "area_chica_der_fondo_cercana"
+        },
+        {
+          "imagen": [
+            792.9,
+            148.7
+          ],
+          "cancha": [
+            46.5,
+            -9.16
+          ],
+          "nombre": "area_chica_der_frente_cercana"
+        },
+        {
+          "imagen": [
+            485.4,
+            113.0
+          ],
+          "cancha": [
+            41.0,
+            0.0
+          ],
+          "nombre": "punto_penal_der"
+        }
+      ],
+      "H_img2cancha": [
+        [
+          0.03036128207368762,
+          -0.006821929408318459,
+          34.620688679704344
+        ],
+        [
+          -0.021455531806267143,
+          -0.12505908220043235,
+          24.43167615451714
+        ],
+        [
+          -2.5745164351780898e-05,
+          0.0017457686914964913,
+          1.0
+        ]
+      ],
+      "tramo": 0
+    }
+  ]
+}

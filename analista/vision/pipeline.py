@@ -120,6 +120,18 @@ class Pipeline:
         self.guardar_diag = False          # True: guarda las etapas internas del último cuadro
         self.diag: dict | None = None
         self._graf = None
+        self._t_prev: float | None = None
+        self.en_vivo = False                # lo pone correr(); en vivo la cámara se reubica tras saltos de tiempo
+
+    def calentar(self):
+        """Una pasada en vacío del detector (carga perezosa de la red, hilos, memoria)."""
+        try:
+            h = int(round(self.cfg.ancho_proceso * 9 / 16))
+            vacio = np.zeros((h, self.cfg.ancho_proceso, 3), np.uint8)
+            vacio[:] = (40, 140, 40)
+            self.detector(vacio, np.full(vacio.shape[:2], 255, np.uint8))
+        except Exception:  # noqa: BLE001  (si falla, solo se pierde la ventaja)
+            pass
 
     def _colores_bgr(self):
         if self.equipos.listo:
@@ -142,6 +154,13 @@ class Pipeline:
             self.lente = self.cal.corrector_lente(ww, hh)
             claves = self.cal.homografias(ww, hh)
             self.camara = EstimadorCamara(self.cancha, claves)
+            self.camara.reanclar_si_malo = self.en_vivo
+            # En vivo la calibración se hizo sobre un cuadro congelado: queda como referencia para
+            # encontrar la cámara al empezar (y después de cada corte)
+            for img, H in self.cal.referencias(ww, hh):
+                if self.lente is not None:
+                    img = self.lente(img)
+                self.camara.agregar_referencia(img, H, fija=True)
         if self.lente is not None:
             frame = self.lente(frame)
         return frame
@@ -201,8 +220,10 @@ class Pipeline:
             if self.camara_fija and self.camara.H is None and self.camara.claves:
                 # Cámara fija que empieza en otro cuadro: se usa la calibración clave (con su ajuste fino)
                 idx_cam = next(iter(self.camara.claves))
+            salto = None if self._t_prev is None else t - self._t_prev
             estado = self.camara.procesar(idx_cam, frame, cesped_cam, campo_cam, jug.cajas,
-                                          None if self.camara_fija else self._graf)
+                                          None if self.camara_fija else self._graf, salto)
+        self._t_prev = t
 
         feats = [ClasificadorEquipos.caracteristica(frame, c, cesped) for c in jug.cajas]
         self.equipos.agregar(feats)
@@ -298,47 +319,92 @@ class Pipeline:
 
     # --------------------------------------------------------------- video completo
     def correr(self, fuente, salida: Path, video_anotado: bool = True, mostrar: bool = False,
-               max_cuadros: int | None = None, progreso: bool = True, al_cuadro=None, detener=None) -> dict:
+               max_cuadros: int | None = None, progreso: bool = True, al_cuadro=None, detener=None,
+               grabar_entrada: Path | None = None) -> dict:
         """Procesa toda la fuente. `al_cuadro(res, anotado, n)` se llama en cada cuadro procesado
-        (lo usa el panel web para el video en vivo); `detener()` permite cortar desde afuera."""
+        (lo usa el panel web para el video en vivo); `detener()` permite cortar desde afuera.
+        `grabar_entrada`: guarda la señal tal como llega (en vivo, para revisarla o reanalizarla)."""
         salida = Path(salida)
         salida.mkdir(parents=True, exist_ok=True)
         escritor = None
+        escritor_entrada = None
+        en_vivo = bool(getattr(fuente, "en_vivo", False))
+        self.en_vivo = en_vivo
+        if en_vivo:
+            self.calentar()          # la primera inferencia de la red tarda: mejor antes que en el partido
+        if grabar_entrada is not None and hasattr(fuente, "grabar"):
+            fuente.grabar(grabar_entrada)          # en vivo graba el hilo de captura, a ritmo real
+            grabar_entrada = None
+        fps_salida = fuente.fps / self.cfg.paso
+        t_primero, escritos = None, 0
         t_ini = time.time()
         n = 0
-        for indice, t, frame in fuente:
-            if indice % self.cfg.paso:
-                continue
-            if detener is not None and detener():
-                break
-            res = self.procesar(indice, t, frame)
-            n += 1
-            if video_anotado or mostrar or al_cuadro is not None:
-                anotado = self.anotar(res)
-                if al_cuadro is not None:
-                    al_cuadro(res, anotado, n)
-                if video_anotado:
-                    if escritor is None:
-                        escritor = _escritor_h264(salida / "video_anotado.mp4", anotado.shape,
-                                                  fuente.fps / self.cfg.paso)
-                    escritor.stdin.write(anotado.tobytes())
-                if mostrar:
-                    cv2.imshow("Analista (q para salir)", anotado)
-                    if cv2.waitKey(1) & 0xFF == ord("q"):
-                        break
-            if progreso and n % 50 == 0:
-                vel = n / (time.time() - t_ini)
-                total = f"/{fuente.total // self.cfg.paso}" if fuente.total else ""
-                print(f"  cuadro {n}{total}  ({vel:.1f} cuadros/s)", flush=True)
-            if max_cuadros and n >= max_cuadros:
-                break
-        if escritor is not None:
-            escritor.stdin.close()
-            escritor.wait()
+        try:
+            for indice, t, frame in fuente:
+                if grabar_entrada is not None:
+                    if escritor_entrada is None:
+                        Path(grabar_entrada).parent.mkdir(parents=True, exist_ok=True)
+                        escritor_entrada = _escritor_h264(Path(grabar_entrada), frame.shape, fuente.fps)
+                    escritor_entrada.stdin.write(np.ascontiguousarray(frame).tobytes())
+                if indice % self.cfg.paso:
+                    continue
+                if detener is not None and detener():
+                    break
+                res = self.procesar(indice, t, frame)
+                n += 1
+                if video_anotado or mostrar or al_cuadro is not None:
+                    anotado = self.anotar(res)
+                    if al_cuadro is not None:
+                        al_cuadro(res, anotado, n)
+                    if video_anotado:
+                        if escritor is None:
+                            escritor = _escritor_h264(salida / "video_anotado.mp4", anotado.shape, fps_salida)
+                            t_primero = t
+                        veces = 1
+                        if en_vivo:
+                            # En vivo el análisis puede ir más lento que la señal: se repite el cuadro
+                            # para que el video anotado dure lo mismo que el partido
+                            veces = max(1, min(int((t - t_primero) * fps_salida) + 1 - escritos, int(2 * fps_salida)))
+                        datos = anotado.tobytes()
+                        for _ in range(veces):
+                            escritor.stdin.write(datos)
+                        escritos += veces
+                    if mostrar:
+                        cv2.imshow("Analista (q para salir)", anotado)
+                        if cv2.waitKey(1) & 0xFF == ord("q"):
+                            break
+                if progreso and n % 50 == 0:
+                    vel = n / (time.time() - t_ini)
+                    total = f"/{fuente.total // self.cfg.paso}" if fuente.total else ""
+                    print(f"  cuadro {n}{total}  ({vel:.1f} cuadros/s)", flush=True)
+                if max_cuadros and n >= max_cuadros:
+                    break
+        except KeyboardInterrupt:
+            if not en_vivo:
+                raise
+            print("\nTerminando: se guarda lo analizado hasta ahora…")      # en vivo se corta con Ctrl+C
+        for esc in (escritor, escritor_entrada):
+            if esc is not None:
+                esc.stdin.close()
+                esc.wait()
+        desfase = None
+        if hasattr(fuente, "terminar_grabacion"):
+            g = getattr(fuente, "grabadora", None)
+            if g is not None and g.t0 is not None and getattr(fuente, "_t0", None):
+                desfase = round(float(g.t0 - fuente._t0), 3)      # t del análisis = t de la grabación + desfase
+            fuente.terminar_grabacion()
         if mostrar:
             cv2.destroyAllWindows()
         self.equipos.forzar_ajuste()
-        return self.guardar(salida, n, time.time() - t_ini, fuente.fps)
+        segundos = time.time() - t_ini
+        # En vivo el ritmo real es el que alcanzó el análisis, no el pedido
+        fps = n / max(segundos, 1e-6) if en_vivo else fuente.fps
+        extra = {"en_vivo": en_vivo, "forma_proceso": list(self.forma[:2]) if self.forma is not None else None}
+        if desfase is not None:
+            extra["grabacion_desfase_s"] = desfase
+        if en_vivo and getattr(fuente, "_t0", None):
+            extra["inicio_epoch"] = round(float(fuente._t0), 3)     # hora real del t = 0 (para alinear)
+        return self.guardar(salida, n, segundos, round(fps, 2), extra)
 
     # --------------------------------------------------------------- post-proceso
     def tabla(self) -> pd.DataFrame:
@@ -375,7 +441,7 @@ class Pipeline:
                 lambda s: s.rolling(5, center=True, min_periods=1).median())
         return df.sort_values(["cuadro", "id"]).reset_index(drop=True)
 
-    def guardar(self, salida: Path, n: int, segundos: float, fps: float) -> dict:
+    def guardar(self, salida: Path, n: int, segundos: float, fps: float, extra: dict | None = None) -> dict:
         salida = Path(salida)
         df = self.tabla()
         df.to_csv(salida / "tracking.csv", index=False)
@@ -395,6 +461,7 @@ class Pipeline:
             "camara_fija": bool(self.camara_fija),
             "detector": self.cfg.detector, "imgsz": self.cfg.imgsz, "ancho_proceso": self.cfg.ancho_proceso,
             "conf": getattr(self.detector, "conf", None),
+            **(extra or {}),
         }
         (salida / "resumen_proceso.json").write_text(json.dumps(resumen, indent=2, ensure_ascii=False), encoding="utf-8")
         return resumen
@@ -435,9 +502,12 @@ def ruta_ffmpeg() -> str:
         raise RuntimeError("No se encontró ffmpeg: instala 'imageio-ffmpeg' (pip) o ffmpeg") from e
 
 
-def _escritor_h264(ruta: Path, forma, fps: float):
+def _escritor_h264(ruta: Path, forma, fps: float, rapido: bool = False):
+    """ffmpeg recibiendo cuadros BGR por stdin. rapido=True (grabar en vivo): casi sin CPU, archivo más grande."""
     h, w = forma[:2]
     return subprocess.Popen([ruta_ffmpeg(), "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24",
-                             "-s", f"{w}x{h}", "-r", f"{fps:.3f}", "-i", "-", "-c:v", "libx264", "-preset", "veryfast",
-                             "-crf", "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(ruta)],
+                             "-s", f"{w}x{h}", "-r", f"{fps:.3f}", "-i", "-",
+                             "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2",      # H.264 pide ancho y alto pares
+                             "-c:v", "libx264", "-preset", "ultrafast" if rapido else "veryfast",
+                             "-crf", "26" if rapido else "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(ruta)],
                             stdin=subprocess.PIPE)

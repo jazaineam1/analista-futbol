@@ -17,3 +17,5 @@ Thumbs.db
 demo/salidas/
 notebooks/salida_tv/
 build/
+demo/clips/*/video.webm
+docs/media/_crudo/

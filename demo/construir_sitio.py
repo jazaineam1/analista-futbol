@@ -120,7 +120,7 @@ def pagina(evals: dict, xg: dict, artefacto: bool) -> str:
 <link rel="stylesheet" href="estilo.css">
 {fin_cabeza}<div class="barra"><div class="envoltura">
   <a class="marca" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><rect x="6" y="9" width="20" height="14" rx="1.5" fill="none" stroke="var(--accent-ink)" stroke-width="2"/><path d="M16 9v14" stroke="var(--accent-ink)" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="none" stroke="var(--accent-ink)" stroke-width="2"/></svg>Analista</a>
-  <nav aria-label="Sitio"><a href="#fuentes">Qué analiza</a><a href="#video">Video</a><a href="#reportes">Reportes</a><a href="#validacion">Validación</a><a href="#instalar">Instalar</a><a href="guia.html">Guía</a><a class="gh" href="{REPO}">GitHub</a></nav>
+  <nav aria-label="Sitio"><a href="#fuentes">Qué analiza</a><a href="#video">Video</a><a href="#var">VAR</a><a href="#reportes">Reportes</a><a href="#validacion">Validación</a><a href="#instalar">Instalar</a><a href="guia.html">Guía</a><a class="gh" href="{REPO}">GitHub</a></nav>
 </div></div>
 
 <main>
@@ -128,13 +128,13 @@ def pagina(evals: dict, xg: dict, artefacto: bool) -> str:
   <div>
     <p class="eti">Análisis de datos de fútbol · código abierto</p>
     <h1>Del partido a los datos</h1>
-    <p class="lead">Analista lee un partido desde el video, sea la señal del televisor, una grabación o la pantalla del PC,
-    y ubica a cada jugador y el balón en metros. Con eso, y con datos abiertos de eventos y tracking, calcula xG, posesión,
-    presión, formación y control de cancha, y entrega reportes listos para compartir.</p>
+    <p class="lead">Analista lee un partido desde el video, sea la señal del televisor, la página donde lo ves en vivo o una
+    grabación, y ubica a cada jugador y el balón en metros. Con eso, y con datos abiertos de eventos y tracking, calcula xG,
+    posesión, presión, formación y control de cancha, revisa las jugadas como un VAR y entrega reportes listos para compartir.</p>
     <div class="acciones">
       <a class="boton pri" href="#instalar">Instalar</a>
       <a class="boton" href="{REPO}">Código en GitHub</a>
-      <a class="boton" href="deteccion/index.html">Ver cómo detecta</a>
+      <a class="boton" href="var/index.html">Ver el VAR</a>
     </div>
     <div class="datos-portada"><span><b>{rec_tv}</b> de jugadores detectados con cámara de TV</span>
       <span><b>{err_c} m</b> de error con cámara fija</span><span><b>AUC {num(ctx["auc"], 3)}</b> del modelo xG</span></div>
@@ -152,9 +152,10 @@ def pagina(evals: dict, xg: dict, artefacto: bool) -> str:
   <p>Todo llega a las mismas tablas, en metros y con el origen en el centro de la cancha. El mismo código sirve para un partido de
   StatsBomb, uno de SkillCorner o tu propio video.</p></header>
   <div class="fuentes">
-    <article class="fuente"><span class="tipo">Tu video</span><h3>Transmisión, capturadora o archivo</h3>
-      <ul><li>Detección de jugadores y balón con YOLO</li><li>Equipos por color de camiseta, sin entrenar nada</li>
-      <li>Calibración con 4 clics y seguimiento del paneo y el zoom</li><li>Posesión, pases, presión, bloque, físico y goles</li></ul>
+    <article class="fuente"><span class="tipo">Tu video</span><h3>Televisor, página en vivo o archivo</h3>
+      <ul><li>La capturadora HDMI del televisor, la zona de la pantalla donde ves el partido o un video que subes</li>
+      <li>Jugadores y balón con YOLO, equipos por color de camiseta</li>
+      <li>Calibración con 4 clics y seguimiento del paneo y el zoom</li><li>Posesión, pases, presión, bloque, físico, goles y VAR</li></ul>
       <a class="ir" href="#video">Cómo funciona →</a></article>
     <article class="fuente"><span class="tipo">Eventos · StatsBomb Open Data</span><h3>Cada pase, tiro y presión</h3>
       <ul><li>Casi 4.000 partidos: Mundiales, Euro, Copa América, ligas</li><li>xG de StatsBomb y de un modelo propio validado</li>
@@ -171,7 +172,7 @@ def pagina(evals: dict, xg: dict, artefacto: bool) -> str:
   <header><p class="eti">Con video</p><h2>Cuatro pasos en el panel</h2>
   <p>Se instala en tu PC y se usa desde el navegador. No sube nada a internet.</p></header>
   <div class="flujo">
-    <div class="paso"><b>1</b><h3>Fuente</h3><p>Un archivo, la capturadora HDMI conectada a la salida del decodificador, la pantalla o una URL.</p></div>
+    <div class="paso"><b>1</b><h3>Fuente</h3><p>Sube un video, marca en la pantalla la página donde ves el partido en vivo o elige la capturadora HDMI del televisor.</p></div>
     <div class="paso"><b>2</b><h3>Calibrar</h3><p>Cuatro o más clics en la imagen y su punto en la cancha. Las líneas rojas muestran si calza.</p></div>
     <div class="paso"><b>3</b><h3>Analizar</h3><p>Ves el cuadro anotado y la posesión en vivo mientras procesa.</p></div>
     <div class="paso"><b>4</b><h3>Resultados</h3><p>Video con minimapa, reporte HTML y tablas CSV de posiciones, pases y eventos.</p></div>
@@ -183,6 +184,24 @@ def pagina(evals: dict, xg: dict, artefacto: bool) -> str:
       <li>6 equipos</li><li>7 balón</li><li>8 a metros</li><li>9 seguimiento</li><li>10 táctica</li></ol>
       <p style="color:var(--ink2)">El panel muestra qué hizo la app en cada etapa y por qué. Sirve para confiar en el resultado y para entender un error.</p>
       <div class="acciones" style="margin-top:16px"><a class="boton" href="deteccion/index.html">Recorrer las etapas</a></div></div>
+  </div>
+</div></section>
+
+<section id="var"><div class="envoltura">
+  <div class="dos">
+    <div class="texto">
+      <p class="eti">Revisión tipo VAR</p><h2>Fuera de lugar, medido</h2>
+      <p style="color:var(--ink2)">En cada pase y en cada remate la app busca el instante exacto en que el balón sale del pie, traza la línea
+      del penúltimo defensor y mide al atacante con la parte del cuerpo más adelantada. Cada decisión lleva su margen y su error: si no
+      alcanza, la jugada sale como dudosa.</p>
+      <ul class="lista-var"><li>Fuera de lugar en pases, rebotes e interferencia con el arquero</li><li>Línea de gol y la jugada previa de cada gol</li>
+      <li>Balones que salieron sin que se parara el juego</li><li>Faltas dentro o fuera del área, manos y ocasión manifiesta de gol</li>
+      <li>Revisión manual cuadro a cuadro sobre tu video</li></ul>
+      <div class="acciones" style="margin-top:18px"><a class="boton pri" href="var/index.html">Ver las jugadas revisadas</a></div>
+    </div>
+    <figure style="margin:0"><div class="pantalla"><video autoplay muted loop playsinline preload="metadata" poster="media/var_clip.jpg" aria-label="Repetición VAR sobre el video: imagen congelada y líneas del fuera de lugar">
+      <source src="media/var_clip.webm" type="video/webm"><source src="media/var_clip.mp4" type="video/mp4"></video></div>
+      <figcaption class="nota" style="margin-top:8px">La repetición que arma la app sobre el video: cámara lenta, imagen congelada, líneas trazadas sobre el césped y el veredicto con su margen.</figcaption></figure>
   </div>
 </div></section>
 
@@ -200,8 +219,8 @@ def pagina(evals: dict, xg: dict, artefacto: bool) -> str:
     <tr><th>Medida</th><th>Plano completo<br><span class="nota">cámara fija, 1920 px, 28 s</span></th><th>Cámara de TV<br><span class="nota">paneo y zoom, 1280 px, 38 s</span></th><th>Qué significa</th></tr>
     {filas_validacion(c, t)}
   </table></div>
-  <p class="nota" style="margin-top:10px">Reproducible con <code>demo/generar_transmision.py</code> y <code>demo/evaluar.py</code>. El detector es
-  YOLO11n entrenado con COCO, sin ajuste para fútbol.</p>
+  <p class="nota" style="margin-top:10px">{una_toma(evals.get("tv_una", {}))}Reproducible con <code>demo/generar_transmision.py</code> y
+  <code>demo/evaluar.py</code>. El detector es YOLO11n entrenado con COCO, sin ajuste para fútbol.</p>
 
   <div class="dos" style="margin-top:56px">
     <div class="texto">
@@ -249,7 +268,8 @@ p.formacion("A")["formacion"]      <span class="c"># '4-2-3-1'</span></pre></div
     <li><b>Detector general</b>YOLO entrenado con COCO no distingue arquero, árbitro y jugador; el arquero y el árbitro salen como "otro" por el color.</li>
     <li><b>Balón en el aire y posesión</b>Con una sola cámara un balón alto se proyecta al suelo lejos de donde está, cerca de otros jugadores. En centros y remates eso desvía la posesión (en la prueba de TV, {pos_tv}).</li>
     <li><b>Deriva de la cámara de TV</b>Siguiendo el paneo, la calibración se desvía con el tiempo: en tomas de hasta 28 s, el error mediano fue de 1 m y el 90% quedó bajo 2 m. Calibrar cada toma lo reduce; un modelo de puntos de la cancha lo corregiría en cada cuadro.</li>
-    <li><b>Repeticiones y primeros planos</b>Se detectan y se saltan. Tras un corte la app intenta volver a ubicar la cámara con las líneas; lo más preciso es calibrar el primer cuadro de cada toma.</li>
+    <li><b>Repeticiones y primeros planos</b>Se detectan y se saltan. Tras un corte la app vuelve a ubicar la cámara comparando el césped y las líneas con el cuadro calibrado; lo más preciso sigue siendo calibrar el primer cuadro de cada toma.</li>
+    <li><b>VAR con una cámara</b>La cámara de TV no ve a todos: si el receptor o el último defensor quedan fuera de imagen, la jugada sale dudosa o no revisable. La parte del cuerpo más adelantada se aproxima con la silueta, y el contacto de una falta no se ve en las posiciones: las faltas vienen de los eventos o se marcan a mano.</li>
     <li><b>Licencias</b>El código es MIT. YOLO (opcional) es AGPL-3.0. Los datos de StatsBomb son para uso educativo y de investigación.</li>
   </ul>
 </div></section>
@@ -262,6 +282,17 @@ p.formacion("A")["formacion"]      <span class="c"># '4-2-3-1'</span></pre></div
 {pie}"""
 
 
+def una_toma(u: dict) -> str:
+    """El clip de TV calibrando solo la primera toma: la cámara se reubica sola después de la repetición."""
+    if not u:
+        return ""
+    j, cam = u.get("jugadores") or {}, u.get("camara") or {}
+    return (f"Con una sola calibración (sin calibrar la toma que sigue a la repetición), la cámara de TV queda en "
+            f"{num(j.get('error_mediana_m'))} m de error de posición y {pct(j.get('recall'))} de jugadores detectados: tras el corte la app "
+            f"reubica la cámara comparando el césped y las líneas con el cuadro calibrado ({num(cam.get('calibrado_pct'), 0)}% de los "
+            f"cuadros calibrados, error de la cámara {num(cam.get('error_mediana_m'))} m). ")
+
+
 def tabla_readme(evals: dict) -> str:
     """Tabla de validación en Markdown para el README (entre los marcadores VALIDACION)."""
     import re
@@ -272,6 +303,9 @@ def tabla_readme(evals: dict) -> str:
            "(ver [validación](https://jazaineam1.github.io/analista-futbol/#validacion)):", "",
            "| Medida | Plano completo (cámara fija) | Cámara de TV (paneo y zoom) | Qué significa |", "|---|---|---|---|"]
     out += [f"| {html.unescape(a)} | {html.unescape(b)} | {html.unescape(cc)} | {html.unescape(d)} |" for a, b, cc, d in filas]
+    extra = una_toma(evals.get("tv_una", {}))
+    if extra:
+        out += ["", extra.strip()]
     return "\n".join(out)
 
 
@@ -310,12 +344,21 @@ def main():
     ap.add_argument("--artefacto", action="store_true")
     a = ap.parse_args()
     salidas = Path(a.salidas)
-    evals = {k: leer(salidas / k / "evaluacion.json") for k in ("completo", "tv", "real")}
+    evals = {k: leer(salidas / k / "evaluacion.json") for k in ("completo", "tv", "real", "tv_una")}
+    import re
     for k in ("completo", "tv", "real"):
         rep = salidas / k / "reporte.html"
         if rep.exists():
             (DOCS / "reportes").mkdir(parents=True, exist_ok=True)
-            shutil.copy(rep, DOCS / "reportes" / f"video_{k}.html")
+            for viejo in (DOCS / "reportes").glob(f"video_{k}_var_*"):
+                viejo.unlink()
+            html_ = rep.read_text(encoding="utf-8")
+            # las imágenes y los clips del VAR van al lado del reporte, con el nombre del reporte delante
+            for nombre in sorted(set(re.findall(r'"(var_clip_\d+\.mp4|var_\d+\.jpg)"', html_))):
+                if (salidas / k / nombre).exists():
+                    shutil.copy(salidas / k / nombre, DOCS / "reportes" / f"video_{k}_{nombre}")
+            html_ = re.sub(r'"(var_clip_\d+\.mp4|var_\d+\.jpg)"', lambda m_: f'"video_{k}_{m_.group(1)}"', html_)
+            (DOCS / "reportes" / f"video_{k}.html").write_text(html_, encoding="utf-8")
     xg = leer(RAIZ / "analista" / "modelos" / "xg.json")
     if not a.sin_capturas:
         capturas([(DOCS / r, DOCS / img) for r, img, *_ in REPORTES])

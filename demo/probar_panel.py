@@ -102,16 +102,31 @@ def main():
         # ---------------------------------------------------------------- fuente
         def fuente():
             pg.click("nav.tabs button[data-tab=fuente]")
+            pg.click(".tipo[data-tipo=ruta]")
             pg.fill("#spec", "/no/existe.mp4")
             pg.click("#abrir")
             expect(pg.locator("#fuente-msg")).to_have_class("msg err", timeout=10000)
-            pg.fill("#spec", video)
-            pg.click("#abrir")
+            # La persona sube el video desde el navegador (arrastrar o elegir el archivo)
+            pg.click(".tipo[data-tipo=subir]")
+            pg.set_input_files("#archivo", video)
+            expect(pg.locator("#subir-msg")).to_contain_text("Subido", timeout=60000)
             pg.wait_for_selector("#fuente-vista img", timeout=30000)
             expect(pg.locator("#estado-pill")).to_have_text("archivo listo")
             assert "1280" in pg.locator("#fuente-info").inner_text()
+            expect(pg.locator("#videos .chip.ok")).to_have_text("en uso")
             foto("3_fuente")
-        P.paso("Fuente: error con ruta inválida y apertura del video", fuente)
+        P.paso("Fuente: ruta inválida, subir el video desde el navegador y abrirlo", fuente)
+
+        def otras_fuentes():
+            # Las tarjetas de pantalla y televisor responden aunque el equipo no tenga pantalla ni capturadora
+            pg.click(".tipo[data-tipo=tele]")
+            pg.wait_for_function("document.querySelector('#disp-buscar') && !document.querySelector('#disp-buscar').disabled", timeout=60000)
+            assert pg.locator("#disp-lista").inner_text().strip(), "la búsqueda de capturadoras no mostró nada"
+            pg.click(".tipo[data-tipo=pantalla]")
+            pg.wait_for_timeout(1500)
+            assert pg.locator("#pan-msg").is_visible() or pg.locator("#pan-marco").is_visible()
+            pg.click(".tipo[data-tipo=subir]")
+        P.paso("Fuente: tarjetas de capturadora y pantalla", otras_fuentes)
 
         # ---------------------------------------------------------------- calibrar
         def calibrar():
@@ -165,6 +180,44 @@ def main():
                 assert r.ok and len(r.body()) > 1000, f"{nombre} no se sirve"
             foto("6_resultados")
         P.paso("Resultados: KPIs, archivos y reporte", resultados)
+
+        def var():
+            pg.click("nav.tabs button[data-tab=var]")
+            pg.wait_for_selector("#var-cont:not([hidden])", timeout=20000)
+            expect(pg.locator("#var-kpis .kpi")).to_have_count(5)
+            assert pg.locator("#var-lista button").count() >= 1, "sin jugadas revisadas"
+            # una jugada con su clip sobre el video y la reconstrucción 2D
+            con_clip = pg.locator("#var-lista button:has(.chip)")
+            assert con_clip.count() >= 1, "ninguna jugada trae el clip VAR sobre el video"
+            con_clip.first.click()
+            pg.wait_for_selector("#var-foto video", timeout=10000)
+            src = pg.locator("#var-foto video source[type='video/mp4']").get_attribute("src")
+            r = pg.request.get(a.url + src)
+            assert r.ok and len(r.body()) > 50000, f"el clip {src} no se sirve bien"
+            pg.click("#var-vistas [data-v='2d']")
+            pg.wait_for_selector("#var-visor .rep-svg", timeout=10000)
+            pg.keyboard.press("v")
+            pg.wait_for_timeout(3000)
+            assert pg.locator("#var-visor .rep-veredicto").evaluate("e => getComputedStyle(e).opacity") != "0"
+            foto("6b_var")
+            # revisión manual: cuadro a cuadro y trazar las líneas
+            pg.evaluate("document.querySelector('#vm-t').value = 12; document.querySelector('#vm-t').dispatchEvent(new Event('input'))")
+            pg.click("#vm-adel")
+            expect(pg.locator("#vm-t-txt")).to_have_text("0:12,04", timeout=5000)
+            pg.wait_for_function("document.querySelector('#vm-img').complete && document.querySelector('#vm-img').naturalWidth > 0", timeout=20000)
+            pg.click("#vm-ir")
+            expect(pg.locator("#vm-msg")).not_to_have_text("Midiendo…", timeout=120000)
+            assert "Error" not in pg.locator("#vm-msg").inner_text()
+            # falta marcada con un clic sobre el cuadro
+            pg.click("#vm-modo [data-m='falta']")
+            pg.locator("#vm-canvas").scroll_into_view_if_needed()
+            pg.wait_for_timeout(800)
+            caja = pg.locator("#vm-canvas").bounding_box()
+            pg.mouse.click(caja["x"] + caja["width"] * 0.6, caja["y"] + caja["height"] * 0.6)
+            pg.click("#vm-ir")
+            expect(pg.locator("#vm-msg")).to_contain_text("del área", timeout=60000)
+            foto("6c_var_manual")
+        P.paso("VAR: clips sobre el video, repetición 2D, cuadro a cuadro y falta marcada", var)
 
         # ---------------------------------------------------------------- cómo detecta
         def detecta():

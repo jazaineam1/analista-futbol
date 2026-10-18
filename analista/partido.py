@@ -178,6 +178,15 @@ class Partido:
             df = df[df["t"] <= hasta]
         return at.formacion(df, equipo, self.direccion(), self.metricas()["poseedor"])
 
+    # ------------------------------------------------------------ VAR
+    def var(self):
+        """Revisión tipo VAR: fuera de lugar en cada pase, línea de gol y jugada previa de cada gol,
+        balones que salieron sin que se detuviera el juego y faltas junto al área (`RevisionVar`)."""
+        if getattr(self, "_var", None) is None:
+            from .var_partido import var_partido
+            self._var, self._posiciones = var_partido(self)
+        return self._var
+
     # ------------------------------------------------------------ resumen y reportes
     def resumen(self) -> dict:
         out = {"partido": {k: self.info.get(k) for k in ("fuente", "fecha", "competicion", "estadio")},

@@ -6,7 +6,12 @@ Estrategia:
   2. Propagación: se mide el movimiento de cámara entre cuadros con flujo óptico
      sobre el césped (sin jugadores) y se encadena la homografía.
   3. Tras un corte (repetición, primer plano), cuando vuelve el plano general se
-     re-ancla alineando las líneas con la última calibración buena (ECC).
+     re-ancla comparando la imagen con cuadros de referencia ya calibrados (puntos ORB
+     sobre el césped y las líneas -> homografía entre imágenes): la cámara de TV gira
+     sobre un punto fijo, así que dos vistas suyas se relacionan por una homografía.
+     Sirve también en vivo: se calibra un cuadro congelado y, al empezar, la app
+     encuentra dónde está ahora la cámara. Si no hay coincidencia, se alinean las
+     líneas con la última calibración buena (ECC).
   4. Si el plano no es táctico (poco césped), el cuadro se marca sin calibración.
 
 En producción, los pasos 1 y 3 se reemplazan por un modelo de puntos clave de la
@@ -20,7 +25,7 @@ import cv2
 import numpy as np
 
 from ..cancha import Cancha, aplicar_h, mascara_lineas_proyectadas
-from .deteccion import mascara_cajas, mascara_lineas
+from .deteccion import mascara_cajas, mascara_cesped, mascara_lineas
 
 
 @dataclass
@@ -88,10 +93,92 @@ class EstimadorCamara:
         self.malos_seguidos = 0
         self.flujo_fallido = 0
         self.ultimo_flujo = None
+        # Cuadros de referencia calibrados: fijos (claves) y recientes (vistas buenas del partido)
+        self.escala_ref = 0.5
+        self.orb = cv2.ORB_create(nfeatures=1500, fastThreshold=10)
+        self.refs_fijas: list[dict] = []
+        self.refs_recientes: list[dict] = []
+        # En vivo: si entre dos cuadros analizados pasó mucho tiempo (el PC no alcanza el ritmo) o el
+        # calce se pierde, el flujo óptico ya no sirve y se busca la cámara con los cuadros de referencia
+        self.reanclar_si_malo = False
+        self.salto_max_s = 0.45
+        self.ultima_ref = -10 ** 9
+        self.claves_con_ref: set[int] = set()
 
     # ----------------------------------------------------------- API principal
+    # ----------------------------------------------------------- referencias
+    def _rasgos(self, frame_o_gris, cesped=None, graficos=None, excluir=None):
+        gris = frame_o_gris if frame_o_gris.ndim == 2 else cv2.cvtColor(frame_o_gris, cv2.COLOR_BGR2GRAY)
+        if cesped is None:
+            cesped, _ = mascara_cesped(frame_o_gris) if frame_o_gris.ndim == 3 else (np.full(gris.shape, 255, np.uint8), None)
+        # césped y líneas (las líneas quedan dentro del césped dilatado); fuera gráficos y jugadores
+        m = cv2.dilate((cesped > 0).astype(np.uint8) * 255, np.ones((9, 9), np.uint8))
+        if graficos is not None:
+            m[graficos > 0] = 0
+        if excluir is not None:
+            m[excluir > 0] = 0
+        s = self.escala_ref
+        g = cv2.resize(gris, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
+        m = cv2.resize(m, (g.shape[1], g.shape[0]), interpolation=cv2.INTER_NEAREST)
+        return self.orb.detectAndCompute(g, m)
+
+    def agregar_referencia(self, frame: np.ndarray, H_img2cancha: np.ndarray, cesped=None, fija: bool = False) -> bool:
+        """Guarda un cuadro con su calibración para volver a ubicar la cámara más adelante."""
+        kp, des = self._rasgos(frame, cesped)
+        if des is None or len(kp) < 40:
+            return False
+        ref = {"pts": np.float32([k.pt for k in kp]), "des": des, "H": np.asarray(H_img2cancha, float).copy()}
+        if fija:
+            self.refs_fijas.append(ref)
+        else:
+            self.refs_recientes = (self.refs_recientes + [ref])[-4:]
+        return True
+
+    def desde_referencias(self, gris, cesped, graficos, excluir, lineas, campo, forma):
+        """Homografía del cuadro actual a partir de las referencias (None si ninguna coincide)."""
+        refs = self.refs_recientes[::-1] + self.refs_fijas
+        if not refs:
+            return None
+        kp, des = self._rasgos(gris, cesped, graficos, excluir)
+        if des is None or len(kp) < 30:
+            return None
+        pts = np.float32([k.pt for k in kp])
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+        S = np.diag([self.escala_ref, self.escala_ref, 1.0])
+        mejor, mejor_puntaje = None, 0.0
+        for ref in refs:
+            pares = bf.knnMatch(ref["des"], des, k=2)
+            buenos = [m for m in (p for p in pares if len(p) == 2) if m[0].distance < 0.8 * m[1].distance]
+            if len(buenos) < 25:
+                continue
+            a = ref["pts"][[m[0].queryIdx for m in buenos]]
+            b = pts[[m[0].trainIdx for m in buenos]]
+            M, inl = cv2.findHomography(a, b, cv2.RANSAC, 3.0)
+            if M is None or inl is None:
+                continue
+            n_in = int(inl.sum())
+            if n_in < 25 or n_in < 0.3 * len(buenos):
+                continue
+            M = np.linalg.inv(S) @ M @ S                      # ref -> actual, en píxeles de proceso
+            try:
+                H = ref["H"] @ np.linalg.inv(M)
+            except np.linalg.LinAlgError:
+                continue
+            H = H / H[2, 2]
+            cal = self.calidad(H, lineas, campo) if lineas is not None else 0.0
+            puntaje = n_in * (0.5 + cal)
+            if puntaje > mejor_puntaje:
+                mejor, mejor_puntaje = (H, cal, n_in), puntaje
+        if mejor is None:
+            return None
+        H, cal, n_in = mejor
+        if lineas is not None:
+            H = self.ajustar_con_lineas(H, lineas, campo, forma, cambio_max_m=2.0)
+        return H
+
     def procesar(self, idx: int, frame: np.ndarray, cesped: np.ndarray, campo: np.ndarray,
-                 cajas_jugadores: np.ndarray, graficos: np.ndarray | None = None) -> EstadoCamara:
+                 cajas_jugadores: np.ndarray, graficos: np.ndarray | None = None,
+                 salto_s: float | None = None) -> EstadoCamara:
         gris = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         hist = self._histograma(frame)
         frac = float((cesped > 0).mean())
@@ -107,18 +194,39 @@ class EstimadorCamara:
         if idx in self.claves:
             self.H = self.ajustar_con_lineas(self.claves[idx].copy(), lineas, campo, frame.shape)
             fuente = "clave"
+            if idx not in self.claves_con_ref:
+                self.claves_con_ref.add(idx)
+                self.agregar_referencia(frame, self.H, cesped, fija=True)
         elif not plano_general:
             self.H, fuente = None, "perdida"
         elif corte or self.H is None:
-            self.H, fuente = self._reanclar(lineas, frame.shape)
-        else:
-            mov = self._movimiento(self.gris_prev, gris, cesped, excluir, graficos)
-            if mov is not None:
-                self.H = self.H @ np.linalg.inv(mov)
-                self.H /= self.H[2, 2]
-                self.flujo_fallido = 0
+            H_ref = self.desde_referencias(gris, cesped, graficos, excluir, lineas, campo, frame.shape)
+            if H_ref is not None:
+                self.H, fuente = H_ref, "reanclada"
+                self.flujo_fallido = self.malos_seguidos = 0
             else:
-                self.flujo_fallido += 1
+                self.H, fuente = self._reanclar(lineas, frame.shape)
+        else:
+            H_ref = None
+            hay_refs = bool(self.refs_fijas or self.refs_recientes)
+            salto = salto_s is not None and salto_s > self.salto_max_s
+            if self.reanclar_si_malo and hay_refs and (salto or self.malos_seguidos % 8 == 3):
+                H_ref = self.desde_referencias(gris, cesped, graficos, excluir, lineas, campo, frame.shape)
+                if H_ref is not None and not salto and lineas is not None and self.H is not None:
+                    # sin salto de tiempo, solo si calza mejor que lo que viene siguiendo el flujo
+                    if self.calidad(H_ref, lineas, campo) <= self.calidad(self.H, lineas, campo) + 0.05:
+                        H_ref = None
+            if H_ref is not None:
+                self.H, fuente = H_ref, "reanclada"
+                self.flujo_fallido = self.malos_seguidos = 0
+            else:
+                mov = self._movimiento(self.gris_prev, gris, cesped, excluir, graficos)
+                if mov is not None:
+                    self.H = self.H @ np.linalg.inv(mov)
+                    self.H /= self.H[2, 2]
+                    self.flujo_fallido = 0
+                else:
+                    self.flujo_fallido += 1
 
         calidad = 0.0
         if self.H is not None and lineas is not None:
@@ -140,6 +248,12 @@ class EstimadorCamara:
                 self.ultima_buena = self.H.copy()
             elif fuente != "clave":
                 self.malos_seguidos += 1
+            # Cada ~2 s, una vista bien calibrada queda como referencia para después de un corte
+            # (en vivo, con pocos cuadros por segundo, más seguido: la cámara se mueve mucho entre cuadros)
+            cada = 3 if self.reanclar_si_malo else 50
+            if calidad >= (0.45 if self.reanclar_si_malo else 0.3) and fuente != "perdida" and self.n - self.ultima_ref >= cada:
+                if self.agregar_referencia(frame, self.H, cesped):
+                    self.ultima_ref = self.n
         # Se declara perdida solo con evidencia fuerte: el flujo falla varios cuadros seguidos
         # o las líneas no calzan durante ~2 s (en zonas sin líneas, el flujo sigue mandando)
         if self.H is not None and fuente != "clave" and (self.flujo_fallido >= 6 or self.malos_seguidos >= 50):

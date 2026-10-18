@@ -165,3 +165,6 @@ footer .envoltura{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:spac
 
 /* ningún hijo de una grilla empuja la página: el código y las tablas se desplazan dentro */
 .dos>*,.fuentes>*,.portada .envoltura>*,.detecta>*,.reportes>*,.guia>*{min-width:0}
+.lista-var{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.lista-var li{padding-left:22px;position:relative;color:var(--ink)}
+.lista-var li::before{content:"";position:absolute;left:0;top:.62em;width:12px;height:3px;border-radius:2px;background:var(--accent)}
