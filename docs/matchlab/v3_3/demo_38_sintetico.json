@@ -1,0 +1,464 @@
+{
+  "meta": {
+    "id": "demo-38",
+    "name": "Laboratorio 38 encuentros (DATOS SINTÉTICOS)",
+    "season": "Demostración",
+    "cutoff": "Todos los partidos por disputar",
+    "source": "Escenario sintético para comprobar el universo 3^38, NO es una liga real",
+    "topN": 8,
+    "status": "custom",
+    "rule": "Simplificado"
+  },
+  "teams": [
+    {
+      "id": "T00",
+      "name": "Equipo 1",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T01",
+      "name": "Equipo 2",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T02",
+      "name": "Equipo 3",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T03",
+      "name": "Equipo 4",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T04",
+      "name": "Equipo 5",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T05",
+      "name": "Equipo 6",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T06",
+      "name": "Equipo 7",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T07",
+      "name": "Equipo 8",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T08",
+      "name": "Equipo 9",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T09",
+      "name": "Equipo 10",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T10",
+      "name": "Equipo 11",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T11",
+      "name": "Equipo 12",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T12",
+      "name": "Equipo 13",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T13",
+      "name": "Equipo 14",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T14",
+      "name": "Equipo 15",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T15",
+      "name": "Equipo 16",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T16",
+      "name": "Equipo 17",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T17",
+      "name": "Equipo 18",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T18",
+      "name": "Equipo 19",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    },
+    {
+      "id": "T19",
+      "name": "Equipo 20",
+      "pts": 0,
+      "pj": 0,
+      "w": 0,
+      "d": 0,
+      "l": 0,
+      "gf": 0,
+      "ga": 0
+    }
+  ],
+  "fixtures": [
+    {
+      "home": "T00",
+      "away": "T01",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T02",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T03",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T04",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T05",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T06",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T07",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T08",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T09",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T10",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T11",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T12",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T13",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T14",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T15",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T16",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T17",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T18",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T00",
+      "away": "T19",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T02",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T03",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T04",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T05",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T06",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T07",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T08",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T09",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T10",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T11",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T12",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T13",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T14",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T15",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T16",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T17",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T18",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T01",
+      "away": "T19",
+      "date": "2027-01-01",
+      "round": 1
+    },
+    {
+      "home": "T02",
+      "away": "T03",
+      "date": "2027-01-01",
+      "round": 1
+    }
+  ]
+}
